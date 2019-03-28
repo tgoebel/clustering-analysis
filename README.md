@@ -12,3 +12,12 @@ productivity and aftershock rate plots for Southern California.
 The analysis is based on a relocated earthquake catalog from Hauksson et al. 2012 from 1981 to 2011,
 available at: http://scedc.caltech.edu/research-tools/altcatalogs.html
 
+The two files provides are: hs_1981_2011_all.mat
+in matlab binary format which can be loaded using scipy.io.loadmat
+
+and the catalog in original format:
+hs_1981_2011_all.txt 
+with the data columns:
+#YR   MO DY HR MN SC          N     Lat         Lon      Depth   MAG  NP Dist  rms   d_n meth clID  nCl     ndTT  err_h   err_z   err_h2  err_z2 type  meth2  poly                  
+
+
