@@ -1,2 +1,14 @@
 # clustering-analysis
 Seismicity Clustering Analysis Based on nearest neighbor distances of event pairs
+
+@author tgoebel - UC - Santa Cruz
+
+This repository is an implementation of Zaliapin & Ben-Zion in python:
+Zaliapin, I., and Ben-Zion, Y., 2013, Earthquake clusters in southern California I: Identification and stability: Journal of Geophysical Research: Solid Earth, v. 118, no. 6, p. 2847–2864, doi: 10.1002/jgrb.50179.
+
+The provided codes reproduce Figures 4, 5 and 8 in the paper, as well as general
+productivity and aftershock rate plots for Southern California.
+
+The analysis is based on a relocated earthquake catalog from Hauksson et al. 2012 from 1981 to 2011,
+available at: http://scedc.caltech.edu/research-tools/altcatalogs.html
+
