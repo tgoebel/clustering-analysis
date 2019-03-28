@@ -3,8 +3,12 @@ Seismicity Clustering Analysis Based on nearest neighbor distances of event pair
 
 @author tgoebel - UC - Santa Cruz
 
-This repository is an implementation of Zaliapin & Ben-Zion in python:
-Zaliapin, I., and Ben-Zion, Y., 2013, Earthquake clusters in southern California I: Identification and stability: Journal of Geophysical Research: Solid Earth, v. 118, no. 6, p. 2847–2864, doi: 10.1002/jgrb.50179.
+This repository is an implementation of Zaliapin & Ben-Zion in python.
+
+When using this code, please cite:
+- Zaliapin, I., and Ben-Zion, Y., 2013, Earthquake clusters in southern California I: Identification and stability: Journal of Geophysical Research: Solid Earth, v. 118, no. 6, p. 2847–2864, doi: 10.1002/jgrb.50179.
+and
+- Goebel, T.H.W., Rosson, Z., Brodsky, E.E., and Walter, J.I., 2019, Aftershock deficiency of induced earthquake sequences during rapid mitigation efforts in Oklahoma: EPSL, v. submitted.
 
 The provided codes reproduce Figures 4, 5 and 8 in the paper, as well as general
 productivity and aftershock rate plots for Southern California.
