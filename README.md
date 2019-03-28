@@ -1,5 +1,5 @@
 # clustering-analysis
-Seismicity Clustering Analysis Based on nearest neighbor distances of event pairs
+Seismicity clustering analysis based on nearest neighbor distances of event pairs
 
 @author tgoebel - UC - Santa Cruz
 
@@ -31,3 +31,8 @@ mx.DateTime: https://pypi.org/project/egenix-mx-base/
 Code has been developed and tested on unix/linux systems and will not work on windows without modification.
 Specifically, paths to directories will have to be adjusted to windows as well as using 'gawk' and 'sed' in
 the module 'EqCat'.
+
+GETTING STARTED:
+1) download the earthquake catalog (.mat matlab binary file)
+2) run the script: 1b_preprocess_testPlot.py and check if the catalog is plotted corretly above M3.
+3) ...
