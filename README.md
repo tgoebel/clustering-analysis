@@ -24,4 +24,10 @@ hs_1981_2011_all.txt
 with the data columns:
 #YR   MO DY HR MN SC          N     Lat         Lon      Depth   MAG  NP Dist  rms   d_n meth clID  nCl     ndTT  err_h   err_z   err_h2  err_z2 type  meth2  poly                  
 
+following python modulus have to be installed before using the code:
+numy, scipy
+mx.DateTime: https://pypi.org/project/egenix-mx-base/
 
+Code has been developed and tested on unix/linux systems and will not work on windows without modification.
+Specifically, paths to directories will have to be adjusted to windows as well as using 'gawk' and 'sed' in
+the module 'EqCat'.
