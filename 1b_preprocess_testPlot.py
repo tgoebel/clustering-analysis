@@ -17,7 +17,8 @@ import scipy.io
 import os
  
 #------------------------------my modules-------------------------------------- 
-from EqCat import *
+import src.dataIO_utils as dataUtils
+from src.EqCat import *
 
 eqCat = EqCat( )
 
