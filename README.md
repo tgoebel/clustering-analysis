@@ -35,4 +35,5 @@ the module 'EqCat'.
 GETTING STARTED:
 1) download the earthquake catalog (hs_1981_2011_all.mat matlab binary file)
 2) run the script: 1b_preprocess_testPlot.py and check if the catalog is plotted corretly above M3.
-3) ...
+3) ...TODO: (determine eta_0 ...)
+4) find neatest neighbor using NND (eta) for each event: 3_NND.py
