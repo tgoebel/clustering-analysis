@@ -16,7 +16,7 @@ import os
 
 import src.dataIO_utils
 #------------------------------my modules-------------------------------------- 
-from EqCat import *
+from src.EqCat import *
 
 eqCat = EqCat( )
 
@@ -26,7 +26,7 @@ eqCat = EqCat( )
 dir_in = '%s/data/quakeData/SCSN/relocated'%( os.path.expanduser( '~'))
 file_in= 'hs_1981_2011_all.txt'
 #file_in = 'test_HS.txt'
-print egrg
+
 #=================================2==============================================
 #                            load data
 #================================================================================

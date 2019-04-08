@@ -131,7 +131,6 @@ class EqCat:
 #             file_obj.close()
 #             
 
-
         #convert date to decimal year
         self.data['Time'] = np.array([])
         for i in xrange( self.data['Mag'].shape[0] ):
@@ -277,10 +276,49 @@ class EqCat:
 
 
 
+    #======================================4==========================================
+    #                            projections, rotations etc.
+    #=================================================================================
 
 
+    def toCart_coordinates(self, **kwargs):
+        """
+        :input
+        **kwargs['projection']  =   'aeqd' - (default) azimuthal equidistant
+                                    'eqdc' - equi distant conical projection
 
+                                    'cyl'  - cynlidrical equidistant - not working
+                'returnProjection' : True  - return basemap object
+        use equidistant projection to convert lon, lat to X, Y coordinates
+        :output catalog attributes:   - self.data['X'], self.data['Y'], self.data['Depth'] in km
+                return True or basemap object, m
+        
+        """
+        projection = 'aeqd'
+        if 'projection' in kwargs.keys() and kwargs['projection'] is not None:
+            projection = kwargs['projection']
+        from mpl_toolkits.basemap import Basemap
+        xmin,xmax = self.data['Lon'].min(), self.data['Lon'].max()
+        ymin,ymax = self.data['Lat'].min(), self.data['Lat'].max()
 
+        # setup equi distance basemap.
+        m = Basemap( llcrnrlat  =  ymin,urcrnrlat  =  ymax,
+                     llcrnrlon  =  xmin,urcrnrlon  =  xmax,
+                     projection = projection,lat_0=(ymin+ymax)*.5,lon_0=(xmin+xmax)*.5,
+                     resolution = 'l')
+
+        self.data['X'], self.data['Y'] = m( self.data['Lon'], self.data['Lat'])
+        if projection == 'cyl':
+            pass
+            #self.data['X'] *= 1e2
+            #self.data['Y'] *= 1e2
+        else:
+            self.data['X'] *= 1e-3
+            self.data['Y'] *= 1e-3
+        if 'returnProjection' in kwargs.keys() and kwargs['returnProjection'] == True:
+            return m
+        else:
+            return True
 
 
 

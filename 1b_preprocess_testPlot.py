@@ -14,7 +14,7 @@ TODO: - implement geo-referenced plotting with Basemap
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.io
-import os
+import os, sys
  
 #------------------------------my modules-------------------------------------- 
 import src.dataIO_utils as dataUtils
@@ -22,6 +22,7 @@ from src.EqCat import *
 
 eqCat = EqCat( )
 
+#print dir( dataUtils)
 #=================================1==============================================
 #                            dir, file, params
 #================================================================================
