@@ -7,7 +7,7 @@ Created on April 10th, 2019
     
     - NND_eta - eq. 1 for NND in Zaliaping & Ben-Zion 2013
 
-@author: tgoebel
+           @author tgoebel U of Memphis, 5/15/2019
 '''
 from __future__ import division
 import numpy as np

@@ -3,7 +3,7 @@ Created on August 16, 2016
 
 - compute inter-event times and distance and normalize by magnitude
 
-@author: tgoebel
+           @author tgoebel U of Memphis, 5/15/2019
 '''
 import matplotlib as mpl
 mpl.use( 'Agg') # uncomment for interactive plotting
