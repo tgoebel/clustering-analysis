@@ -112,14 +112,55 @@ def density_2D( x, y, x_bin, y_bin, **kwargs):
     return XX-.5*dx, YY-.5*dy, ZZ
 
 
+#================================================================================
+#                          dictionary processing
+#================================================================================ 
+def copyDic( dic):
+    """ create a copy of dic"""
+    dCopy = {}
+    for tag in dic.keys():
+        dCopy[tag] = copy.copy( dic[tag])
+    return dCopy
+
+def selectDataRange(dicOri, min, max, tag, **kwargs):
+    """
+    select data within given range, set min = None or max =None for only lower or upper bound
+    """
+    dic = copyDic(dicOri)
+    if 'includeBoundaryEvents' in kwargs.keys() and kwargs['includeBoundaryEvents'] == True:
+        if min == None or max == None:
+            error_str = 'both boundaries have to be set to include boundary events'
+            raise ValueError, error_str
+        else:
+            sel = np.logical_and( dic[tag] >= float(min), dic[tag] <= float(max ) )          
+    if max == None:
+        sel = dic[tag] > float(min)
+    elif min == None:
+        sel = dic[tag] < max
+    else:
+        sel = np.logical_and( dic[tag] > float(min), dic[tag] < float(max) )
+    sel = np.arange( dic[tag].shape[0], dtype = int )[sel]
+    if 'returnSel' in kwargs.keys() and kwargs['returnSel'] == True:
+        return sel
+    else:        
+        return selDicAll(dic, sel, **kwargs) 
 
 
-
-
-
-
-
-
+def selDicAll(dic, curr_sel, **kwargs):
+    """apply boolean vector to entire data
+    e.g. for sorting or cutting ... """
+    newDic = {}
+    if 'testForArray' in kwargs.keys() and kwargs['testForArray'] == False:
+        for tag, vector in dic.items():
+            newDic[tag] = dic[tag][curr_sel]
+    else:
+        for tag, vector in dic.items(): #loop through all entries (tag = vector name, vector = entries)
+            if tag[0] == 'a':
+                #print tag, len( vector)
+                newDic[tag] = dic[tag][curr_sel]
+            else:
+                print "!!!dicIO sel warning', tag=%s, 'is not a vector!!!, start dic tags with 'a'[]"%( tag)
+    return newDic
 
 
 
