@@ -58,6 +58,9 @@ m.drawstates( linewidth = 1)
 m.drawcoastlines( linewidth= 2)
 a_x, a_y = m( eqCat.data['Lon'], eqCat.data['Lat'])
 m.plot( a_x, a_y, 'ko', ms = 1)
+sel7 = eqCat.data['Mag'] >=7
+m.plot( a_x[sel7], a_y[sel7], 'ro', ms = 8, mew= 1.5, mfc = 'none')
+
 
 m.drawmeridians( np.linspace( int(xmin), xmax, 4),labels=[False,False,False,True],
                  fontsize = 12, fmt = '%.1f')
