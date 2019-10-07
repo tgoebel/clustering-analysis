@@ -12,7 +12,7 @@ import os
 import numpy as np
 import scipy.io #to writer and read mat bin
 
-
+from mpl_toolkits.basemap import Basemap
 
 
 class EqCat:
@@ -114,35 +114,6 @@ class EqCat:
 
             for i in xrange( len(vStrHeader)-1):
                 self.data[vStrHeader[i+1]] = mData[i+6]
-#         
-#         elif catalogType == 'HS_reloc':
-#             if headerLine is None:
-#                 headerLine = 4
-#             headList = ['YR', 'MO', 'DY', 'HR', 'MN','SC', 'N', 'Lat','Lon','Depth', 'MAG', 'nPick', 'distSta', 'rms', 'd/n',  'clID', 'nEvInCl',  'nlnk','err_h','err_z','rel_err_H', 'rel_err_Z','type', 'lMeth', 'poly']
-#             self.data = {}
-#             for tag in headList[0:-3]:
-#                 if tag == 'id':
-#                     self.data[tag] = np.array([], dtype = int)
-#                 else:
-#                     self.data[tag] = np.array([])
-#             file_obj = open( file, 'r')
-#             file_obj.next()
-#             l = 0
-#             for line in file_obj:
-#                 row = line.split()
-#                 if len(row) > 2:
-#                     n = 0
-#                     for tag in headList[0:-3]:
-#                         if tag == 'id':
-#                             self.data[tag] = np.append( self.data[tag],   int( row[n]) )
-#                         else:
-#                             self.data[tag] = np.append( self.data[tag],   float( row[n]) )
-#                         
-#                         n = n + 1
-#                     print self.data['YR'][l],self.data['MN'][l],self.data['DY'][l]
-#                     l = l + 1
-#             file_obj.close()
-#             
 
         #convert date to decimal year
         self.data['Time'] = np.array([])
@@ -150,7 +121,7 @@ class EqCat:
             print i+1, 'out of', self.data['Mag'].shape[0]
             YR, MO, DY, HR, MN, SC = dt_utils.checkDateTime( [self.data['YR'][i], self.data['MO'][i],self.data['DY'][i], self.data['HR'][i],self.data['MN'][i],self.data['SC'][i]])
             self.data['Time'] = np.append( self.data['Time'], 
-                                           dt_utils.datetime2decYr( [YR, MO, DY, HR, MN, SC]))
+                                           dt_utils.dateTime2decYr( [YR, MO, DY, HR, MN, SC]))
         self.data.pop( 'YR')
         self.data.pop( 'MO')
         self.data.pop( 'DY')
@@ -296,7 +267,20 @@ class EqCat:
         '''
         for key in self.data:
             if isinstance(self.data[key], scipy.io.matlab.mio5_params.mat_struct):
-                self.data[key] = _todict( self.data[key])
+                self.data[key] = self.todict( self.data[key])
+
+    def todict(self, matobj):
+        '''
+        A recursive function which constructs from matobjects nested dictionaries
+        '''
+        dData = {}
+        for strg in matobj._fieldnames:
+            elem = matobj.__dict__[strg]
+            if isinstance(elem, scipy.io.matlab.mio5_params.mat_struct):
+                dData[strg] = self.todict(elem)
+            else:
+                dData[strg] = elem
+        return dData
 
     def saveMatBin(self, file):
         """save dic to bin file"""
@@ -321,9 +305,6 @@ class EqCat:
                 self.data.pop( tag)
             #else:
             #    print tag, self.data[tag].shape[0]
-
-
-
 
     #======================================4==========================================
     #                            projections, rotations etc.

@@ -9,10 +9,8 @@ from __future__ import division
 import numpy as np
 #import pandas as pd
 
-#import time, datetime
-#from datetime import datetime as dt
-import mx.DateTime #, jdcal
-
+import time, datetime
+from datetime import datetime as dt
 
 #
 #dy1, dy2 = jdcal.gcal2jd( 0,1,0)
@@ -82,50 +80,29 @@ def checkDateTime( dateTime):
 
 #------------------------------------------------------------------------------ 
 #                        date-time conversions
-#------------------------------------------------------------------------------ 
-
-# def julian2decYear( day_int, **kwargs):
-#     """
-#     - convert julian day (relative to AD i.e. yr=,m=dy=0) to decimal year
-#     - julian day is relative to year 0 which is the matlab time format 
-#     """
-#     import jdcal
-#     #2400000.5
-#     day01,day02 = jdcal.gcal2jd(0,1,0)
-#     if 'matlab' in kwargs.keys() and kwargs['matlab'] == False:
-#         pass
-#     else:
-#         day_int += day02
-#     yr,mo,dy,dummy = jdcal.jd2gcal( day01, day_int)
-#     # check if day is integer value otherwise get hr, mn,sc
-#     if isinstance( day_int, int):
-#         hr,mn,sc = 0,0,0
-#     else:
-#         hr = (day_int - int(day_int)) * 24
-#         mn = (hr - int(hr))*60
-#         sc = (mn - int(mn))*60
-#         hr,mn = int(hr), int(mn)
-#     return standard2Dec([ yr, mo, dy,hr,mn,sc])
-
-
-def datetime2decYr( datetime_in, **kwargs ):
+#------------------------------------------------------------------------------
+def dateTime2decYr( datetime_in, **kwargs ):
     """
     input: datetime_in = array containing time columns year - second
                    out = date in decimal year
+
     """
-    #datetime_in = checkDateTime( datetime_in)
+    import datetime
+    import calendar
     try:
-        datetime = mx.DateTime.DateTime( int( datetime_in[0] ), int( datetime_in[1] ), int( datetime_in[2] ), 
-                        int( datetime_in[3] ), int( datetime_in[4] ), float( datetime_in[5] ) )
+        o_dt = datetime.datetime( int( datetime_in[0] ), int( datetime_in[1] ), int( datetime_in[2] ), int( datetime_in[3] ), int( datetime_in[4] ), int( round( datetime_in[5])-1e-3))
     except:
         error_msg = "datetime array not valid - %s; check if date and time is correct, e.g. no SC > 60.." % datetime_in
         raise ValueError, error_msg
-    year_seconds = ( datetime.day_of_year - 1 ) * 86400.0 + datetime.abstime
-    if datetime.is_leapyear:
-        year_fraction = year_seconds / ( 86400.0 * 366 )
+    time_sc = o_dt.hour*3600 + o_dt.minute*60 + o_dt.second
+    # get no. of day within current year between 0 to 364 and ad time in seconds
+    dayOfYear_seconds = ( o_dt.timetuple().tm_yday - 1 ) * 86400.0 + time_sc
+    if calendar.isleap( o_dt.year):
+        year_fraction = dayOfYear_seconds / ( 86400.0 * 366 )
     else:
-        year_fraction = year_seconds / ( 86400.0 * 365 )
-    return datetime.year + year_fraction
+        year_fraction = dayOfYear_seconds / ( 86400.0 * 365 )
+    # dec year = current year + day_time (in dec year)
+    return o_dt.year + year_fraction
 
 def decYr2datetime( decimalYear ):
     """
