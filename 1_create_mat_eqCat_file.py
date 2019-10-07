@@ -14,7 +14,6 @@ import scipy.io
 import os
 
 
-import src.dataIO_utils
 #------------------------------my modules-------------------------------------- 
 from src.EqCat import *
 
@@ -23,7 +22,7 @@ eqCat = EqCat( )
 #=================================1==============================================
 #                            dir, file, params
 #================================================================================
-dir_in = '%s/data/quakeData/SCSN/relocated'%( os.path.expanduser( '~'))
+dir_in = 'data'
 file_in= 'hs_1981_2011_all.txt'
 #file_in = 'test_HS.txt'
 
@@ -33,8 +32,8 @@ file_in= 'hs_1981_2011_all.txt'
 os.chdir( dir_in)
 eqCat.loadEqCat(  file_in, 'HS_reloc', removeColumn=[24,25,26])
 
-print eqCat.size()
-print sorted( eqCat.data.keys())
+print( 'total no. of events: ', eqCat.size())
+print( sorted( eqCat.data.keys()))
 #=================================3==============================================
 #                     test plot and save to .mat binary
 #================================================================================
