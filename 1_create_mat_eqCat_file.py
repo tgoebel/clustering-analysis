@@ -22,9 +22,10 @@ eqCat = EqCat( )
 #=================================1==============================================
 #                            dir, file, params
 #================================================================================
-dir_in = 'data'
+# change to local dir where eq. catalogs are saved
+dir_in = '%s/data/quakeData/SCSN/relocated'%( os.path.expanduser('~'))
 file_in= 'hs_1981_2011_all.txt'
-#file_in = 'test_HS.txt'
+
 
 #=================================2==============================================
 #                            load data
