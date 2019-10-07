@@ -69,6 +69,7 @@ class EqCat:
                - kwargs['header']       - what is the line number of header info. of columns -> used for dic tags
                - kwargs['removeColumn'] - specify columns to be removed from original file prior to loading the file
                                            uses 'awk'
+                                        - required since loadtxt assume all table entries to be floats
         
         TODO: --> biggest time sink is checking the date-time for every earthquake and converting it to dec. year --> vectorizing should help                                   
         
