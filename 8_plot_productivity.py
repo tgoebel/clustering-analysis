@@ -8,6 +8,8 @@ Created on August 16, 2016
 @author: tgoebel
 '''
 import matplotlib as mpl
+mpl.use( 'Agg')
+
 import matplotlib.pyplot as plt
 import numpy as np
 import os
@@ -26,9 +28,9 @@ dPar  = {
 
             #=================plotting==============
             'alpha'       : 1.0, # for plotting demonstration
-            'plotFormat' : 'png',
             'xmin' :  2,  'xmax' : 8,
             'ymin' : 0.1, 'ymax' : 1e4,
+            'plotFormat' : 'png',
             }
 
 #================================================================================
@@ -88,10 +90,10 @@ for f_Mc in dPar['a_Mc']:
     ax.set_xlim( dPar['xmin'], dPar['xmax'])
     ax.set_ylim( dPar['ymin'], dPar['ymax'])
     ax.set_xlabel( 'Mainshock Magnitude')
-    ax.set_ylabel( 'log$_{10}$ Number of Aftershocks')
+    ax.set_ylabel( 'Number of Aftershocks')
     ax.legend( loc = 'upper left', frameon = False)
 
-    #plb.savefig( '%s_%s_Mc_%.1f_ASprod.%s'%(dPar['region'], dPar['catName'], dPar['Mc'], dPar['plotFormat']))
+    plt.savefig( '%s/%s_Mc_%.1f_ASprod.%s'%(plot_dir, file_in.split('.')[0], f_Mc, dPar['plotFormat']))
     
     plt.show()
     plt.clf()
