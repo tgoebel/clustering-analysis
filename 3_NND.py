@@ -31,18 +31,17 @@ from src.EqCat import *
 
 eqCat = EqCat( )
 
-#print dir( dataUtils)
 #=================================1==============================================
 #                            dir, file, params
 #================================================================================
-dir_in = '%s/data/quakeData/SCSN/relocated'%( os.path.expanduser( '~'))
+dir_in = 'data'
 file_in= 'hs_1981_2011_all.mat'
 
 #file_b  = '%s_b_Mc_D.txt'%(fileIn.split('.')[0])
 dPar  = {   'aMc'         :  np.array([3.0, 4.0]), #np.array( [2.0, 2.5, 3.0, 3.5]),
             # fractal dimension and b for eq. (1)
             'D'           : 1.6, # TODO: - these values should be contrained independently
-            'b'           : 1.0,
+            'b'           : 1.0, # use: https://github.com/tgoebel/magnitude-distribution for b-value
             #=================plotting==============
             'eta_binsize' :  .3,
             'xmin' : -13, 'xmax' : 0,

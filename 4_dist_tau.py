@@ -2,18 +2,20 @@
 Created on August 16, 2016
 
 - compute inter-event times and distance and normalize by magnitude
+- create colormap of event-pair density (i.e. NND events) for
+    corresponding rescaled event times and distances
 
 @author: tgoebel
 '''
 import matplotlib as mpl
-mpl.use( 'Agg') # uncomment for interactive plotting
+#mpl.use( 'Agg') # uncomment for interactive plotting
 
 import os
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.io
 #------------------------------my modules-------------------------------------- 
-import data_utils
+import src.data_utils as data_utils
 import src.clustering as clustering
 from src.EqCat import *
 
@@ -21,11 +23,12 @@ eqCat   = EqCat() # original catalog
 eqCatMc = EqCat() # this catalog wil be modfied with each Mc iteration
 catChild=  EqCat()
 catParent= EqCat()
+np.random.seed( 123456)
 #=================================1==============================================
 #                            dir, file, params
 #================================================================================
-dir_in = '%s/data/quakeData/SCSN/relocated'%( os.path.expanduser( '~'))
-file_in= 'hs_1981_2011_all.mat'
+data_dir = 'data'
+file_in  = 'hs_1981_2011_all.mat'
 
 #file_b  = '%s_b_Mc_D.txt'%(fileIn.split('.')[0])
 dPar  = {   'a_Mc'        :  np.array([3.0, 4.0]), #np.array( [2.0, 2.5, 3.0, 3.5]),
@@ -35,9 +38,10 @@ dPar  = {   'a_Mc'        :  np.array([3.0, 4.0]), #np.array( [2.0, 2.5, 3.0, 3.
  
             #===================smoothing parameters=============
             'binx' : .1, 'biny' : .1,# used for density and gaussian smoothing
-            'sigma'   : None, #.2, #'silverman', # Gaussian smoothing bandwidth, default = n**(-1./(d+4)),
+            'sigma'   : None, #if None: default = n**(-1./(d+4)),
             #=================plotting==============
-            'eta_0'       : -5.0,
+            'eta_0'       : -5.0, # run: 2_eta_0.py and
+                                  # if eta-0-file exists: default = load this value from ASCII file
             #'xmin' : -13, 'xmax' : 0,
             'Tmin' :  -8, 'Tmax' : 0,
             'Rmin' :  -5, 'Rmax' : 3,
@@ -46,7 +50,7 @@ dPar  = {   'a_Mc'        :  np.array([3.0, 4.0]), #np.array( [2.0, 2.5, 3.0, 3.
 #=================================2==============================================
 #                            load data, select events
 #================================================================================
-eqCat.loadMatBin(  os.path.join( dir_in, file_in))
+eqCat.loadMatBin(  os.path.join( data_dir, file_in))
 print( 'total no. of events', eqCat.size())
 eqCat.selectEvents( dPar['a_Mc'][0], None, 'Mag')
 #eqCat.selectEvents( tmin, tmax, 'Time')
@@ -58,7 +62,15 @@ eqCat.toCart_coordinates( projection = 'aeqd')
 
 for i in range( dPar['a_Mc'].shape[0]):
     f_Mc =  dPar['a_Mc'][i]
-    
+    eta_0_file = '%s/%s_Mc_%.1f_eta_0.txt'%(data_dir, file_in, f_Mc)
+    # load eta_0 value
+    if os.path.isfile( eta_0_file):
+        print( 'load eta_0 from file'),
+        f_eta_0 = np.loadtxt( eta_0_file, dtype = float)
+        print( f_eta_0)
+    else:
+        print( 'could not find eta_0 file', eta_0_file, 'use value from dPar', dPar['eta_0'])
+        f_eta_0 = dPar['eta_0']
     # cut below current completeness
     eqCatMc.copy( eqCat)
     eqCatMc.selectEvents( f_Mc, None, 'Mag')
@@ -75,7 +87,7 @@ for i in range( dPar['a_Mc'].shape[0]):
     catChild.copy( eqCatMc)
     catParent.copy( eqCatMc)
     #catChild, catPar = create_parent_child_cat( projCat, dNND)
-    catChild.selEventsFromID( dNND['aEqID_c'], repeats = True)
+    catChild.selEventsFromID(    dNND['aEqID_c'], repeats = True)
     catParent.selEventsFromID(   dNND['aEqID_p'], repeats = True)
     print( 'size of parent catalog', catChild.size(), 'size of offspring cat', catParent.size())     
     # note that dictionary dPar here has to include 'b','D' and 'Mc'

@@ -4,6 +4,8 @@ Created on March 28th,  2019
 
 - load Hauksson, Shearer 2011 eq catalog from scec data center, alterntive catalogs
 - save as .mat binary for fast data I/O
+- note that the original catalog is not provided and has to be downloaded from the web:
+  https://scedc.caltech.edu/research-tools/altcatalogs.html
 
 @author: tgoebel
 '''
@@ -23,6 +25,7 @@ eqCat = EqCat( )
 #                            dir, file, params
 #================================================================================
 # change to local dir where eq. catalogs are saved
+# the original catalog can be found here: https://scedc.caltech.edu/research-tools/altcatalogs.html
 dir_in = '%s/data/quakeData/SCSN/relocated'%( os.path.expanduser('~'))
 file_in= 'hs_1981_2011_all.txt'
 

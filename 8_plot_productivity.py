@@ -26,9 +26,9 @@ dPar  = {
 
             #--------------mag binning for prod. law--------------
             'win' : .1, 'step' : .06,
-            
+            'mag_exp' : 4.2, # exp. trendline goes through this point
             #=================plotting==============
-            'alpha'       : .95, # for plotting demonstration
+            'alpha'       : 1.04, # for plotting demonstration
             'plotFormat' : 'png',
             'xmin' :  2,  'xmax' : 8,
             'ymin' : 0.1, 'ymax' : 1e4,
@@ -50,7 +50,7 @@ for f_Mc in dPar['a_Mc']:
     #                           count ave. no. of aftershocks per MS magnitude
     #============================================================================================================
     aMag_bin = np.array( sorted(np.unique( np.around( m_N_as[0], dPar['magRound']))))
-    aAveNo_AS= np.zeros( len( aMag_bin))
+    aAveNo_AS= np.ones( len( aMag_bin))*np.nan
     aNo_Fam  = np.zeros( len( aMag_bin)) # total number of families within mag bin
     aNo_AS20 = np.zeros( len( aMag_bin))
     aNo_AS80 = np.zeros( len( aMag_bin))
@@ -59,6 +59,7 @@ for f_Mc in dPar['a_Mc']:
     for curr_mag in aMag_bin:
         selMag       = curr_mag == m_N_as[0]
         aAveNo_AS[i] = m_N_as[1][selMag].mean()
+
         if selMag.sum() > 0:
             aNo_AS20[i]  = np.percentile( m_N_as[1][selMag], 20)
             aNo_AS80[i]  = np.percentile( m_N_as[1][selMag], 80)
@@ -78,13 +79,14 @@ for f_Mc in dPar['a_Mc']:
     #ax.errorbar( aMag_bin,  aAveNo_AS, yerr=[aAveNo_AS-aNo_AS20, aNo_AS80-aAveNo_AS],
     #             fmt = 'o', ecolor = 'k', elinewidth=.7,capsize=2.5, mec = 'k', ms = 8, mew = 1, mfc = 'w')
 
-    #-------------------------power-law fit-----------------------------------------------------
-    # preFac  =
-    # aY_hat = 10**( dPar['alpha']*aMag_bin + preFac)
-    # ax.semilogy( aMag_bin, aY_hat, 'w-')
-    # ax.semilogy( aMag_bin, aY_hat, '-', color = 'r', lw = 2, label = 'fit, $\gamma$=%.2f, $M_c$=%.1f'%(round( dFit['slope'],2), dPar['Mc']))
+    #-------------------------exponential - estimate-----------------------------------------------------
+    f_no_AS_pl = aAveNo_AS[aMag_bin == dPar['mag_exp']]
+    preFac     = np.log10( f_no_AS_pl) - dPar['alpha']*dPar['mag_exp']
+    a_N_hat    = 10**( dPar['alpha']*aMag_bin + preFac)
+    ax.semilogy( aMag_bin, a_N_hat, 'w-')
+    ax.semilogy( aMag_bin, a_N_hat, '-', color = 'r', lw = 2, label = 'exp = %.1f'%( np.round( dPar['alpha'],1)))
 
-    #-------------------------------labels, limits etc.----------------------------------------------- 
+    #-------------------------------labels, limits etc.-----------------------------------------------
     ax.set_xlim( dPar['xmin'], dPar['xmax'])
     ax.set_ylim( dPar['ymin'], dPar['ymax'])
     ax.set_xlabel( 'Mainshock Magnitude')
