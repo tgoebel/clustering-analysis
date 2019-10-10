@@ -9,8 +9,9 @@ Numpy, matplotlib, matplotlib-basemap, scipy, scipy, datetime, calendar
 
 Tutorial:
 
-- run the provided example scripts in sequential order and compare results to provided figures
-  and:
+- run the provided example scripts in sequential order and compare results to provided figures (see /plots/)
+
+- also check results in:
   Zaliapin, I., and Ben-Zion, Y., 2013, Earthquake clusters in southern California I: 
   Identification and stability: Journal of Geophysical Research: Solid Earth, v. 118, no. 6, p. 2847–2864, doi: 10.1002/jgrb.50179.
  
