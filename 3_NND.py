@@ -62,19 +62,19 @@ print( 'no. of events after initial selection', eqCat.size())
 #                                   2 get surface distance from lon, lat (haversine), use pythagoras to include depth
 eqCat.toCart_coordinates( projection = 'aeqd')
 
-for dPar['Mc'] in dPar['aMc']:
-    print( '-------------- current Mc:', dPar['Mc'], '---------------------')
+for f_Mc in dPar['aMc']:
+    print( '-------------- current Mc:', f_Mc, '---------------------')
     # select magnitude range
-    eqCat.selectEvents( dPar['Mc'], None, 'Mag')
+    eqCat.selectEvents( f_Mc, None, 'Mag')
     print( 'catalog size after MAG selection', eqCat.size())
     # this dictionary is used in module: clustering
-    dConst = {'Mc' : dPar['Mc'],
+    dConst = {'Mc' : f_Mc,
                'b' : dPar['b'],
                'D' : dPar['D']}
     #==================================2=============================================
     #                       compute space-time-magnitude distance, histogram
     #================================================================================  
-    dCluster = clustering.NND_eta( eqCat, dConst,    correct_co_located = True)   
+    dCluster = clustering.NND_eta( eqCat, dConst,    correct_co_located = True, verbose= True)
     ###histogram
     aBins       = np.arange( -13, 1, dPar['eta_binsize'])
     aHist, aBins = np.histogram( np.log10( dCluster['aNND'][dCluster['aNND']>0]), aBins)
@@ -87,18 +87,28 @@ for dPar['Mc'] in dPar['aMc']:
     #                            save results
     #================================================================================
     import scipy.io
-    NND_file = 'data/%s_NND_Mc_%.1f.mat'%( file_in.split('.')[0], dPar['Mc'])
+    NND_file = 'data/%s_NND_Mc_%.1f.mat'%( file_in.split('.')[0], f_Mc)
     print( 'save file', NND_file)
     scipy.io.savemat( NND_file, dCluster, do_compression  = True)
     
     #=================================4==============================================
     #                          plot histogram
     #================================================================================
+    # load eta_0 value - only for plotting purposes
+    eta_0_file = '%s/%s_Mc_%.1f_eta_0.txt'%(dir_in, file_in, f_Mc)
+    if os.path.isfile( eta_0_file):
+        print( 'load eta_0 from file'),
+        f_eta_0 = np.loadtxt( eta_0_file, dtype = float)
+        print( f_eta_0)
+    else:
+        print( 'could not find eta_0 file', eta_0_file, 'use value from dPar', dPar['eta_0'])
+        f_eta_0 = -5
     fig, ax = plt.subplots()
     #ax.plot( vBin, vHist, 'ko')
-    ax.bar( aBins, aHist, width =.8*dPar['eta_binsize'], align = 'edge', color = '.5', label = 'Mc = %.1f'%( dPar['Mc']))
-    ax.plot( [-5, -5], ax.get_ylim(), 'w-',  lw = 2, label = '$N_\mathrm{tot}$=%i'%( eqCat.size()))
-    ax.plot( [-5, -5], ax.get_ylim(), 'k--', lw = 2, label = '$N_\mathrm{cl}$=%i'%( dCluster['aNND'][dCluster['aNND']<1e-5].shape[0]))
+    ax.bar( aBins, aHist, width =.8*dPar['eta_binsize'], align = 'edge', color = '.5', label = 'Mc = %.1f'%( f_Mc))
+    ax.plot( [f_eta_0, f_eta_0], ax.get_ylim(), 'w-',  lw = 2, label = '$N_\mathrm{tot}$=%i'%( eqCat.size()))
+    ax.plot( [f_eta_0, f_eta_0], ax.get_ylim(), 'r--', lw = 2, label = '$N_\mathrm{cl}$=%i'%( dCluster['aNND'][dCluster['aNND']<1e-5].shape[0]))
+
     ax.legend( loc = 'upper left')
     ax.set_xlabel( 'NND, log$_{10} \eta$')
     ax.set_ylabel( 'Number of Events')
@@ -106,7 +116,7 @@ for dPar['Mc'] in dPar['aMc']:
     ax.set_xlim( dPar['xmin'], dPar['xmax'])
     plt.show()
 
-    plotFile = 'plots/%s_NND_hist_Mc_%.1f.png'%( file_in.split('.')[0], dPar['Mc'])
+    plotFile = 'plots/%s_NND_hist_Mc_%.1f.png'%( file_in.split('.')[0], f_Mc)
     print( 'save plot', plotFile)
     plt.savefig( plotFile)
     plt.clf()
