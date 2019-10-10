@@ -111,12 +111,12 @@ def density_2D( x, y, x_bin, y_bin, **kwargs):
     print( 'check if integral ~1', round(ZZ.sum()*( dx*dy),3)) #ZZ[ZZ>0].mean()*(XX.max()-XX.min())*(YY.max()-YY.min()))
     return XX-.5*dx, YY-.5*dy, ZZ
 
-
 #================================================================================
 #                          dictionary processing
 #================================================================================ 
 def copyDic( dic):
     """ create a copy of dic"""
+    import copy
     dCopy = {}
     for tag in dic.keys():
         dCopy[tag] = copy.copy( dic[tag])
@@ -150,16 +150,8 @@ def selDicAll(dic, curr_sel, **kwargs):
     """apply boolean vector to entire data
     e.g. for sorting or cutting ... """
     newDic = {}
-    if 'testForArray' in kwargs.keys() and kwargs['testForArray'] == False:
-        for tag, vector in dic.items():
-            newDic[tag] = dic[tag][curr_sel]
-    else:
-        for tag, vector in dic.items(): #loop through all entries (tag = vector name, vector = entries)
-            if tag[0] == 'a':
-                #print tag, len( vector)
-                newDic[tag] = dic[tag][curr_sel]
-            else:
-                print "!!!dicIO sel warning', tag=%s, 'is not a vector!!!, start dic tags with 'a'[]"%( tag)
+    for tag, vector in dic.items():
+        newDic[tag] = dic[tag][curr_sel]
     return newDic
 
 

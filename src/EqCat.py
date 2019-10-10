@@ -13,8 +13,9 @@ import numpy as np
 import scipy.io #to writer and read mat bin
 
 from mpl_toolkits.basemap import Basemap
-
-
+#-----------------my modules-----------------------------------------
+import datetime_utils as dateTime
+#--------------------------------------------------------------------
 class EqCat:
     """
 
@@ -76,7 +77,6 @@ class EqCat:
         return: create eqCat object with self.data = {'Time', 'Lon', 'Lat', 'Depth', 'Mag'}, 
                 which are the standard dictionary tags 
         """
-        import date_time_utils as dt_utils
         #----------------check kwargs---------------------------------
         if 'header' in kwargs.keys() and kwargs['header'] is not None:
             header = kwargs['header']
@@ -101,7 +101,6 @@ class EqCat:
                 self.data[headList[l]] = mData[:,l]
                 
         elif catalogType == 'WaldhauserReloc':
-            import date_time_utils as dateTime
             mData = np.loadtxt( file_in)
             mData = mData.T
             # DATE        TIME         LAT          LON         DEP      EH1     EH2    AZ    EZ    MAG       ID
@@ -120,9 +119,9 @@ class EqCat:
         self.data['Time'] = np.array([])
         for i in xrange( self.data['Mag'].shape[0] ):
             print i+1, 'out of', self.data['Mag'].shape[0]
-            YR, MO, DY, HR, MN, SC = dt_utils.checkDateTime( [self.data['YR'][i], self.data['MO'][i],self.data['DY'][i], self.data['HR'][i],self.data['MN'][i],self.data['SC'][i]])
+            YR, MO, DY, HR, MN, SC = dateTime.checkDateTime( [self.data['YR'][i], self.data['MO'][i],self.data['DY'][i], self.data['HR'][i],self.data['MN'][i],self.data['SC'][i]])
             self.data['Time'] = np.append( self.data['Time'], 
-                                           dt_utils.dateTime2decYr( [YR, MO, DY, HR, MN, SC]))
+                                           dateTime.dateTime2decYr( [YR, MO, DY, HR, MN, SC]))
         self.data.pop( 'YR')
         self.data.pop( 'MO')
         self.data.pop( 'DY')
@@ -258,6 +257,7 @@ class EqCat:
             self.selDicAll( iSel)
             if verbose == True:
                 print 'total events with same IDs', nDoubleID
+
     #======================================3==========================================
     #                            .mat binary load save
     #=================================================================================
@@ -350,4 +350,14 @@ class EqCat:
         else:
             return True
 
-        
+    #======================================5==========================================
+    #                           shuffling, random catalog
+    #=================================================================================
+    def randomize_cat(self):
+        """
+        - create a randomized catalog with same average rate, no. of events and
+          spatial extent as the initial catalog
+
+        :return: - random Poissonian catalog, uniform spatial distribution
+        """
+        ## randomize event times

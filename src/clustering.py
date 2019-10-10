@@ -15,27 +15,27 @@ import numpy as np
 #===============================================================================
 #                          my modules
 #===============================================================================
-import data_utils
+import src.data_utils as data_utils
 
 #===============================================================================
 # 
 #===============================================================================
-def NND_eta( eqCat, dConst, **kwargs):
+def NND_eta( eqCat, dConst, verbose = False, **kwargs):
     """
-        - NND_eta - eq. 1 for NND in Zaliaping & Ben-Zion 2013
+        - NND_eta - eq. 1 for NND in Zaliapin & Ben-Zion 2013
     search for 'parent event' i.e. earthquake that occurred closest in space-time-magnitude domain 
                                    but prior to the current event
-        here: [jC]          - are the child events and we try to find the one closest parent, occurring earlier in time
-              [sel_tau_par] - are the potential parent evnets that occurred before [jC], we select the closest in time
+        here: [jC]          - are the off spring events and we try to find the closest parent, occurring earlier in time
+              [sel_tau_par] - are the potential parent events that occurred before [jC], we select the closest in time
 
     Parameters
     ----------
     catalog     - catalog.data['Time'], 'X', 'Y', 'Depth', 'MAG'
                 - time, cartesian coordinates (X,Y, Depth), magnitude
-    dConst      - {'Mc':float, 'b':float, 'D':float} # parameter dictionary
+    dConst      - {'Mc':float, 'b':float, 'D':float} #  dictionary with statistical seismicity parameters
                    - completeness , b-value, fractal dimension
-    kwargs      - rmax (default: = 200) - maximum space window (for faster computation)
-                - tmax (default: =  10) - maximum time window (for faster computation)
+    kwargs      - rmax (default: = 500) - maximum space window (for faster computation)
+                - tmax (default: =  20) - maximum time window (for faster computation)
                 - correct_co_located = True, add gaussian uncertainty to avoid product going to zero for co-located earthquakes
                 - haversine = True - use haversine distance at surface instead of 3D cartesian distance
                 - M0 - reference magnitude, default: M0 = 0
@@ -64,16 +64,15 @@ def NND_eta( eqCat, dConst, **kwargs):
         vUncer = np.random.randn( eqCat.size())*1e-10
         eqCat.data['X']    += vUncer
         eqCat.data['Time'] += abs( vUncer)#time has to stay positive otherwise parent-offspring gets switched
-    #------------------------------------------------------------------------------         
-    #mEta     = np.zeros( (eqCat.size(), eqCat.size()), dtype = float)
-    #aNND     = np.ones(  eqCat.size())
+    #------------------------------------------------------------------------------
     aNND     = np.zeros(  eqCat.size())
     vID_p    = np.zeros( eqCat.size())
     vID_c    = np.zeros( eqCat.size())
     deltaMag = (eqCat.data['Mag'] - M0)
  
     for jC in range( eqCat.size()):
-        print 'event %i of %i'%( jC+1, eqCat.size())
+        if verbose == True:
+            print 'event %i of %i'%( jC+1, eqCat.size())
         # interevent times: take events that happend before t_i 
         #           child             - parent                > 0 
         tau         =  eqCat.data['Time'][jC] - eqCat.data['Time']
@@ -99,13 +98,12 @@ def NND_eta( eqCat, dConst, **kwargs):
                     print aNND[jC], curr_Eta[sel_min], eqCat.data['N'][vcurr_ID][sel_min]
                     print eqCat.data['Lon'][vcurr_ID][sel_min], eqCat.data['Lat'][vcurr_ID][sel_min]
                     print eqCat.data['X'][vcurr_ID][sel_min], eqCat.data['Y'][vcurr_ID][sel_min]
-        # else:
-        #     aNND[jC]    = 1e-6
-        #     vID_p[jC]   = eqCat.data['N'][jC]#[sel_min][0]
-        #     vID_c[jC]   = eqCat.data['N'][jC]
-    #mEta[mEta<0] = 0
-    # remove events with aNND < 0; i.e. event at the beginning with no preceding parent
-    return {  'aNND' : aNND[aNND>0], 'aEqID_p' : vID_p[aNND>0], 'aEqID_c' : vID_c[aNND>0]}
+    sel2 = aNND > 0
+    if np.logical_not(sel2).sum() > 0:
+        print 'remove %i offspring without prior parents in catalog'%(np.logical_not(sel2).sum())
+        #raise ValueError, error_str
+    #  remove events with aNND < 0; i.e. event at the beginning with no preceding parent
+    return {  'aNND' : aNND[sel2], 'aEqID_p' : vID_p[sel2], 'aEqID_c' : vID_c[sel2]}
 
 
 def rescaled_t_r(catChild, catPar, dConst, **kwargs):
@@ -116,10 +114,11 @@ def rescaled_t_r(catChild, catPar, dConst, **kwargs):
     ----------
     catChild, catPar - objects of type SeisCatDic containing parent and child events
     dConst      =  'b', 'D' -  b-value, fractal dimension
-    kwargs       = 3D_distance = True default : False i.e. 2D Euclidean distance 
+    kwargs       = 3D_distance = True default : False i.e. 2D Euclidean distance
+
     Returns
     -------
-    - { 'T' : np.array();  'R' : np.array(} }
+    - a_R, a_tau
 
 
     see: Clustering Analysis of Seismicity and Aftershock Identification, Zaliapin, I. (2008)
@@ -139,10 +138,16 @@ def rescaled_t_r(catChild, catPar, dConst, **kwargs):
     #vMagCorr = 10**(-0.5*dConst['b']*(catPar.data['MAG']-M0) )
     vMagCorr = 10**(-0.5*dConst['b']*(catPar.data['Mag']-M0) )
     if '3D_distance' in kwargs.keys() and kwargs['3d_distance'] == True:
-        vR       = np.sqrt( (catChild.data['X']-catPar.data['X'])**2 + (catChild.data['Y']-catPar.data['Y'])**2+ (catChild.data['Z']-catPar.data['Z'])**2 )**dConst['D']*vMagCorr
+        a_R       = np.sqrt( (catChild.data['X']-catPar.data['X'])**2 + (catChild.data['Y']-catPar.data['Y'])**2+ (catChild.data['Z']-catPar.data['Z'])**2 )**dConst['D']*vMagCorr
     else:
-        vR       = np.sqrt( (catChild.data['X']-catPar.data['X'])**2 + (catChild.data['Y']-catPar.data['Y'])**2 )**dConst['D']*vMagCorr
-    return   vR,  (catChild.data['Time']-catPar.data['Time'])*vMagCorr
+        a_R       = np.sqrt( (catChild.data['X']-catPar.data['X'])**2 + (catChild.data['Y']-catPar.data['Y'])**2 )**dConst['D']*vMagCorr
+    a_tau = (catChild.data['Time']-catPar.data['Time'])*vMagCorr
+    sel2 = a_tau < 0
+    if sel2.sum() > 0:
+        error_str = '%i parents occurred after offspring, check order of origin time in catChild, catPar'%(sel2.sum())
+        raise ValueError, error_str
+    return   a_R, a_tau
+
 
 def assembleClusters_NND( vID_child, vID_parent, vSim, simThreshold, **kwargs):
     """
@@ -320,3 +325,64 @@ def assembleClusters_NND( vID_child, vID_parent, vSim, simThreshold, **kwargs):
     print 'Ntot in cat.', vSim.shape[0], 'N-trig + N-ind', len( vID_Trig_all)+vID_single.shape[0]
     dClust[str(0)] =  vID_single
     return dClust
+
+
+#=================================================================================
+#                      create random catalogs
+#=================================================================================
+# create uniform times
+def rand_rate_uni( N, tmin, tmax, **kwargs):
+    """  draw N random numbers out of a Poisson distribution defined by mu, between tmin and tmax,
+
+    kwargs: - random uniform variable between min and max
+
+    return: vector of N origin times between tmin and tmax """
+    return np.random.uniform( tmin, tmax, size = N)
+
+
+# create Poisson distributed times
+def rand_rate_pois( N, tmin, tmax, **kwargs):
+    """  draw N random numbers out of a Poisson distribution defined by mu, between tmin and tmax,
+
+    kwargs: nIter = int, default = 100
+                   recomputed inter-event times nIter times or until all events fall between tmin and tmax
+
+    return: vector of N origin times between tmin and tmax """
+    nIter = 100
+    if 'nIter' in kwargs.keys() and kwargs['nIter'] is not None:
+        nIter = kwargs['nIter']
+    dt         = tmax-tmin
+    rateYr     = float(N)/(dt)
+    v_tInt = inversePois( N, rateParameter = rateYr)
+    vTime  = np.cumsum( v_tInt)+tmin
+    sel = vTime > tmax
+    if sel.sum() > 0:
+        for i in xrange( nIter):
+            # create new vector of poissonian times
+            v_tInt = inversePois( N, rateParameter = rateYr)
+            vTime_new = np.cumsum( v_tInt)+tmin
+            sel_new = vTime_new > tmax
+            if sel_new.sum() > 0:# keep going to extend time vector between tmin and tmax
+                #keep vector that has more elements between tmin and tmax
+                if sel_new.sum() < sel.sum():
+                    vTime = vTime_new
+            else: # all done if vTime vector elements are between tmin and tmax
+                vTime = vTime_new
+                break
+    vTime.sort()
+    return vTime
+
+def inversePois( N, **kwargs):
+    """ computes the time interval between N successive events assuming a poisson process with
+    average time interval of kwargs['rateParameter'] default between 0 and 1 ,
+    this can be extended to the general case:
+    - if cumulative distribution function is known:
+      solve for x --> draw uniform random number and plug in --> output is the time or what ever the random variable is
+
+    return: vector with  event times"""
+    if 'rateParameter' in kwargs.keys() and kwargs['rateParameter'] is not None:
+        rateParameter = kwargs['rateParameter']
+    else:
+        rateParameter = 1.
+    vRand = np.random.uniform( low = 0, high = 1, size=N)
+    return -np.log(1- vRand)/rateParameter
