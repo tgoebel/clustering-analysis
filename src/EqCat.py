@@ -27,7 +27,7 @@ class EqCat:
                         'Lon'        : np.array([]), #or lon
                         'Lat'        : np.array([]), #or lat
                         'Depth'      : np.array([]), #or depth
-                        'MAG'        : np.array([]),
+                        'Mag'        : np.array([]),
 
                            }  
     """
@@ -105,7 +105,7 @@ class EqCat:
             mData = mData.T
             # DATE        TIME         LAT          LON         DEP      EH1     EH2    AZ    EZ    MAG       ID
             #1984  1  1  1 19 11.320    36.08787   -120.22890   10.964   0.028   0.015  88   0.028  1.8    1109386
-            vStrHeader = ['Time', 'Lat', 'Lon',  'Depth', 'EH1',   'EH2', 'AZ', 'EZ', 'MAG',   'N' ]
+            vStrHeader = ['Time', 'Lat', 'Lon',  'Depth', 'EH1',   'EH2', 'AZ', 'EZ', 'Mag',   'N' ]
             # compute decimal year
             vTime = np.array([])
             for i in xrange( mData[0].shape[0]):
@@ -195,7 +195,7 @@ class EqCat:
             self.selDicAll( sel) 
 
     def sortCatalog(self, tag, **kwargs):
-        """sort catalog according to tag (string) e.g. Time, mag, avePol....
+        """sort catalog according to tag (string) e.g. Time, Mag, ....
         kwargs: beginWithBiggest = True , sort beginning with Biggest value
                 returnSel        = return boolean """
         #get boolean vector for sorting
