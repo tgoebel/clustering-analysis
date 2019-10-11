@@ -92,7 +92,6 @@ for f_Mc in dPar['aMc']:
         #================================================================================
         dNND = clustering.NND_eta( ranCat, dConst,  M0 = 0,   correct_co_located = True,
                                    verbose = False)
-        sel = dNND['aNND'] < 0
         a_Eta_0[i_Bs] = round( np.percentile( np.log10(dNND['aNND']), 1), 5)
         print( 'nBoot', i_Bs+1,'out of', dPar['nBoot'], 'eta 0 - 1st', np.percentile( np.log10(dNND['aNND']), 1))
         if dPar['showPlot'] == True: # plots to check if everything is working
