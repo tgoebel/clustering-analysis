@@ -14,8 +14,7 @@ import scipy.io #to writer and read mat bin
 os.environ["PROJ_LIB"] = f"{os.environ['HOME']}/opt/anaconda3/share/proj"# adjust, comment out as needed
 from mpl_toolkits.basemap import Basemap
 #-----------------my modules-----------------------------------------
-import ClusteringAnalysis.src.datetime_utils as dateTime
-#import datetime_utils as dateTime
+import datetime_utils as dateTime
 
 #--------------------------------------------------------------------
 class EqCat:
