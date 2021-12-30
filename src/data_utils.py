@@ -22,12 +22,12 @@ def removeColumn( file_in, lCol):
     3) return file_name of dublicate
     """
     # example syntax to remove three columns
-    #os.system( "awk '{\$24=""; \$25=""; \$26=""; print}' in_file.txt > out_file.txt")
+    #os.system( "awk '{\$24=""; \$25=""; \$26=""; print(}' in_file.txt > out_file.txt")
     lStr = []
     for col in lCol:
         lStr.append( "$%s=\"\"; "%( col))
     tmp_file    = 'dummy_file.txt'
-    command_str = "awk '{ %s print}' %s > %s"%( ''.join( lStr), file_in, tmp_file)
+    command_str = "awk '{ %s print(}' %s > %s"%( ''.join( lStr), file_in, tmp_file)
     os.system( command_str)           
     return tmp_file
 
@@ -44,10 +44,10 @@ def loadmat(filename, verbose = False):
     '''
     data = scipy.io.loadmat(filename, struct_as_record=True, squeeze_me=True)
     data = _check_keys(data)
-    for tag in data.keys():
+    for tag in list( data.keys()):
         if tag[0] == '_':
             if verbose == True:
-                print 'remove', tag, data[tag]
+                print( 'remove', tag, data[tag])
             data.pop( tag)
     return data
 
@@ -130,7 +130,7 @@ def selectDataRange(dicOri, min, max, tag, **kwargs):
     if 'includeBoundaryEvents' in kwargs.keys() and kwargs['includeBoundaryEvents'] == True:
         if min == None or max == None:
             error_str = 'both boundaries have to be set to include boundary events'
-            raise ValueError, error_str
+            raise( ValueError( error_str))
         else:
             sel = np.logical_and( dic[tag] >= float(min), dic[tag] <= float(max ) )          
     if max == None:

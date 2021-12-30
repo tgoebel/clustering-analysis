@@ -1,4 +1,4 @@
-#!usr/bin/python2.7
+#!usr/bin/python3.7
 """seismic catalog analysis class earthquake catalogs
 -  data is stored in dictionary which can be extended without difficulties
 as long as all vectors have the same length
@@ -7,14 +7,16 @@ as long as all vectors have the same length
   and initial processing (space, time, magnitude window selection) 
 
 """
-from __future__ import division # include true division 
 import os
 import numpy as np
 import scipy.io #to writer and read mat bin
-
+# the next line sets the path to PROJ LIB, should be found automatically for conda install
+os.environ["PROJ_LIB"] = f"{os.environ['HOME']}/opt/anaconda3/share/proj"# adjust, comment out as needed
 from mpl_toolkits.basemap import Basemap
 #-----------------my modules-----------------------------------------
-import datetime_utils as dateTime
+import ClusteringAnalysis.src.datetime_utils as dateTime
+#import datetime_utils as dateTime
+
 #--------------------------------------------------------------------
 class EqCat:
     """
@@ -23,7 +25,7 @@ class EqCat:
     EqCat.data - type python dictionary
     e.g.:
     self.data = {       'N'          : , #event number 
-                        'Time'       : np.array([]), # indecimal years
+                        'Time'       : np.array([]), # in decimal years
                         'Lon'        : np.array([]), #or lon
                         'Lat'        : np.array([]), #or lat
                         'Depth'      : np.array([]), #or depth
@@ -61,7 +63,7 @@ class EqCat:
     #                         import routines
     #===========================================================================
 
-    def loadEqCat(self, file_in, catalogType, **kwargs):
+    def loadEqCat(self, file_in, catalogType, verbose=False, **kwargs):
         """ check what type of catalog and call correct function that handles import
         input: - file         - catalog filename
                - catalogType  = 'hs_reloc', focMech ... etc.
@@ -95,47 +97,53 @@ class EqCat:
             self.data = {}           
             mData = np.loadtxt( file_in, skiprows = header)
             #mData = mData.T
-            print 'no of columns', mData[0].shape[0]
-            print 'no. of earthquakes', mData[:,0].shape[0]
-            for l in xrange( mData[0].shape[0] ):
+            print( 'no of columns', mData[0].shape[0])
+            print( 'no. of earthquakes', mData[:,0].shape[0])
+            for l in range( mData[0].shape[0] ):
                 self.data[headList[l]] = mData[:,l]
                 
-        elif catalogType == 'WaldhauserReloc':
-            mData = np.loadtxt( file_in)
-            mData = mData.T
-            # DATE        TIME         LAT          LON         DEP      EH1     EH2    AZ    EZ    MAG       ID
-            #1984  1  1  1 19 11.320    36.08787   -120.22890   10.964   0.028   0.015  88   0.028  1.8    1109386
-            vStrHeader = ['Time', 'Lat', 'Lon',  'Depth', 'EH1',   'EH2', 'AZ', 'EZ', 'Mag',   'N' ]
-            # compute decimal year
-            vTime = np.array([])
-            for i in xrange( mData[0].shape[0]):
-                vTime  = np.append( vTime, dateTime.datetime2decYr([mData[0][i],mData[1][i],mData[2][i],mData[3][i],mData[4][i],mData[5][i]]))
-            self.data['Time'] = vTime
+        elif catalogType == 'USGS':
+            # 'time', 'latitude', 'longitude', 'depth', 'mag', 'magType', 'nst', 'gap', 'dmin', 'rms', 'net', 'id'
+            #    0         1          2           3       4       5         6       7       8       9     10    11
 
-            for i in xrange( len(vStrHeader)-1):
-                self.data[vStrHeader[i+1]] = mData[i+6]
+            ###1###Date-time
+            mDateTime     = np.genfromtxt( file_in, delimiter=(4,1,2,1,2,1,2,1,2,1,4),
+                                       skip_header=1, usecols=(0,2,4,6,8,10)).T
+            headDate = ['YR', 'MO', 'DY', 'HR', 'MN', 'SC']
+            for i in range( len(headDate)):
+                self.data[headDate[i]] = mDateTime[i]
+            ###2### ID
+            #mID = np.loadtxt( file_in, delimiter=',', skiprows=1, usecols=(10,11), dtype = str).T
+            #self.data['ID'] = np.array([ int(mID[1,i].strip( mID[0,i])) for i in range( mID.shape[1])], dtype = int)
+            self.data['ID']  = np.arange( len( self.data['YR']))
+            ###3### location, magnitude, gap etc.
+            header = ['Lat', 'Lon', 'Depth', 'Mag']#, 'Nst', 'Gap', 'Dmin', 'rms']
+            mData = np.loadtxt( file_in, delimiter=',', skiprows=1,
+                                usecols=(1,2,3,4),#,6,7,8,9),
+                                dtype = float).T
+            for i in range( len(header)):
+                self.data[header[i]] = mData[i]
+
+        elif catalogType == 'Kilauea':
+            mData = np.loadtxt( file_in).T
+            # :TODO convert np.array to python dictionary
 
         #convert date to decimal year
         self.data['Time'] = np.array([])
-        for i in xrange( self.data['Mag'].shape[0] ):
-            print i+1, 'out of', self.data['Mag'].shape[0]
+        for i in range( self.data['Mag'].shape[0] ):
+            if verbose == True:
+                print( i+1, 'out of', self.data['Mag'].shape[0])
             YR, MO, DY, HR, MN, SC = dateTime.checkDateTime( [self.data['YR'][i], self.data['MO'][i],self.data['DY'][i], self.data['HR'][i],self.data['MN'][i],self.data['SC'][i]])
             self.data['Time'] = np.append( self.data['Time'], 
                                            dateTime.dateTime2decYr( [YR, MO, DY, HR, MN, SC]))
-        self.data.pop( 'YR')
-        self.data.pop( 'MO')
-        self.data.pop( 'DY')
-        self.data.pop( 'HR')
-        self.data.pop( 'MN')
-        self.data.pop( 'SC')
         #sort catalog chronologically
         self.sortCatalog('Time')
 
         ##clean up
         if 'removeColumn' in kwargs.keys() and kwargs['removeColumn'] is not None:
-            print "remove: %s, than hit: y   "%( file_in)
-            removeFile = raw_input( ' ')
-            print removeFile
+            print( "delete: %s, than hit: y"%( file_in))
+            removeFile = input( ' ')
+            print( removeFile)
             if os.path.isfile( file_in) and removeFile == 'y':
                 os.system( "rm %s"%( file_in))
 
@@ -171,7 +179,7 @@ class EqCat:
         if 'includeBoundaryEvents' in kwargs.keys() and kwargs['includeBoundaryEvents'] == True:
             if min == None or max == None:
                 error_str = 'both boundaries have to be set to include boundary events'
-                raise ValueError, error_str
+                raise( ValueError( error_str))
             else:
                 sel = np.logical_and( self.data[tag] >= float(min), self.data[tag] <= float(max ) )          
         else:
@@ -187,7 +195,7 @@ class EqCat:
                     sel = np.logical_and( self.data[tag] >= float(min), self.data[tag] < float(max) )
             else:
                 error_str = 'unknown input min = %s'%(min)
-                raise ValueError, error_str
+                raise( ValueError( error_str))
         #sel = np.arange( self.size(), dtype = int )[sel]
         if 'returnSel' in kwargs.keys() and kwargs['returnSel'] == True:
             return sel
@@ -217,46 +225,33 @@ class EqCat:
         for tag, vector in self.data.items(): #loop through all entries (tag = vector name, vector = entries)
             # for NND analysis first event is missing (orphan), so sel.shape = vector.shape - 1
             #if sel.shape[0] != vector.shape[0]:
-            #    print tag, 'does not have the right dimension: %i %i'%(vector.shape[0], sel.shape[0])
+            #    print( tag, 'does not have the right dimension: %i %i'%(vector.shape[0], sel.shape[0])
             #else:
             self.data[tag] = self.data[tag][sel]
 
-    def selEventsFromID(self, a_ID, verbose = False, **kwargs):
+    def selEventsFromID(self, a_ID, **kwargs):
         """ select events specified by list of IDs (self.data['N'])
+        -----------------input
+
         kwargs:  repeats = True , if eqIDs are repeated keep them in catalog and maintain the same order
                 default  = False, every earthquake is only ones in catalog, for several events with same ID keep only the first event               
         
-        return: eq catalog that corresponds to vEqID """
+        ----------------return:
+        eq catalog that corresponds to vEqID """
         Nev= len( a_ID)     
         repeats = False
         if 'repeats' in kwargs.keys() and kwargs['repeats'] == True:
-            repeats = True
-        
-        if repeats == True:
-            sel  = np.ones( Nev, dtype = int)
-            v_i  = np.arange( self.size(), dtype = int)
-            i = 0
-            for currID in a_ID: # =1 at location of ID match
-                sel_curr_ev = self.data['N']==int(currID)
-                if sel_curr_ev.sum() > 0:
-                    sel[i] = int( v_i[sel_curr_ev][0])
-                i += 1
-            self.selDicAll( sel)           
-
-        else: # repeats == False:
-            nDoubleID = 0
-            vID_all  = np.arange( self.size(), dtype = int)
-            iSel     = np.zeros( Nev, dtype = int)
-            for i in xrange( Nev):
-                # event ID may be in catalog more than once
-                if vID_all[ self.data['N']==a_ID[i]].shape[0] > 1:
-                    iSel[i]    = vID_all[ self.data['N']==a_ID[i]][0]
-                    nDoubleID += vID_all[ self.data['N']==a_ID[i]].shape[0] 
-                else:
-                    iSel[i] = vID_all[self.data['N']==a_ID[i]]
-            self.selDicAll( iSel)
-            if verbose == True:
-                print 'total events with same IDs', nDoubleID
+             a_sel  = np.ones(   Nev, dtype = int)
+             v_i    = np.arange( self.size(), dtype = int)
+             i = 0
+             for currID in a_ID: # put one at location of ID match
+                 sel_curr_ev = self.data['N']==int(currID)
+                 if sel_curr_ev.sum() > 0:
+                     a_sel[i] = int( v_i[sel_curr_ev][0])
+                 i += 1
+        else:
+            a_sel = np.in1d( self.data['N'], a_ID, assume_unique=True)
+        self.selDicAll( a_sel)
 
     #======================================3==========================================
     #                            .mat binary load save
@@ -300,12 +295,13 @@ class EqCat:
         
         self.data = scipy.io.loadmat(filename,struct_as_record=False, squeeze_me=True)
         self.check_keys( )
-        for tag in self.data.keys():
+        l_tags = list( self.data.keys())
+        for tag in l_tags:
             if tag[0] == '_':
-                #print 'remove', tag, self.data[tag]
-                self.data.pop( tag)
+                #print( 'remove', tag, self.data[tag]
+                self.data.pop( tag, None)
             #else:
-            #    print tag, self.data[tag].shape[0]
+            #    print( tag, self.data[tag].shape[0]
 
     #======================================4==========================================
     #                            projections, rotations etc.
