@@ -1,10 +1,13 @@
 # clustering-analysis
 Seismicity Clustering Analysis Based on nearest neighbor distances of event pairs
 
+To separate seismicity into background and clustered events, we use the distribution of nearest-neighbor event pairs and compare observed clustering characteristics with expectations from random poissonian earthquakes. Commonly, space-time distances can be described by a 2D bi-modal distribution. The first mode at small interevent times and distances highlights clustered events (e.g. aftershocks), whereas the second mode at larger distances is comprised of background events. The background mode for the California catalog corresponds to that expectation (see plots). We use the 99th percentile of nearest-neighbor distances from the randomized catalogs to separate background and clustered events, which allows for a clear separation between the two modes in California.
+
+
 Dependencies:
 
-Python2.7 (should run with python 3 after slight modifications)
-Numpy, matplotlib, matplotlib-basemap, scipy, scipy, datetime, calendar
+Python 3.7
+Numpy, matplotlib, matplotlib-Basemap, scipy, scipy, datetime, calendar
 
 Use the following references if you use this code:
 - Zaliapin, I., and Ben-Zion, Y., 2013, Earthquake clusters in southern California I: Identification and stability: Journal of Geophysical Research: Solid Earth, v. 118, no. 6, p. 2847–2864, doi: 10.1002/jgrb.50179.
