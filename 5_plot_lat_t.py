@@ -7,7 +7,7 @@ Created on May 16, 2019
 @author: tgoebel - Thomas Goebel University of Memphis
 '''
 import matplotlib as mpl
-mpl.use( 'Agg') # uncomment for interactive plotting
+#mpl.use( 'Agg') # uncomment for interactive plotting
 
 import os
 import numpy as np
@@ -15,8 +15,8 @@ import matplotlib.pyplot as plt
 
 #------------------------------my modules-------------------------------------- 
 import src.data_utils as dataIO
-import src.clustering as clustering
-from src.EqCat import *
+#import src.clustering as clustering
+from src.EqCat import EqCat
 
 eqCat   = EqCat() # original catalog
 eqCatMc = EqCat() # this catalog will be modified with each Mc iteration
@@ -30,7 +30,7 @@ data_dir = 'data'
 plot_dir = 'plots'
 file_in  = 'hs_1981_2011_all.mat'
 
-dPar  = {   'a_Mc'        :  np.array([3.0, 4.0]), #np.array( [2.0, 2.5, 3.0, 3.5]),
+dPar  = {   'a_Mc'        :  np.array([4.0]), #np.array( [2.0, 2.5, 3.0, 3.5]),
             #separate clustered and background
             'eta_0'       : -5.0, # run 2_eta_0.py and
                                   # if file exists: default = load this value from ASCII file
@@ -63,7 +63,7 @@ for f_Mc in dPar['a_Mc']:
     # load nearest neighbor distances
     NND_file = '%s_NND_Mc_%.1f.mat'%(os.path.basename( file_in).split('.')[0], f_Mc)
     dNND = dataIO.loadmat( os.path.join( data_dir, NND_file))
-    print dNND.keys()
+    print( dNND.keys())
     dNND['aNND'] = np.log10( dNND['aNND'])
     #==================================3=============================================
     #                          "declustering" step
@@ -71,16 +71,16 @@ for f_Mc in dPar['a_Mc']:
     #catChild, catPar = create_parent_child_cat( projCat, dNND)
     catChild.copy( eqCat)
     catParent.copy( eqCat)
-    catChild.selEventsFromID( dNND['aEqID_c'], eqCatMc, repeats = True)
-    catParent.selEventsFromID( dNND['aEqID_p'], eqCatMc, repeats = True)
-    print 'tot. ev', eqCatMc.size(), 'parents', np.unique( catParent.data['N']).shape[0], 'children', np.unique( catChild.data['N']).shape[0]
+    catChild.selEventsFromID( dNND['aEqID_c'], repeats = True)
+    catParent.selEventsFromID( dNND['aEqID_p'], repeats = True)
+    print( 'tot. ev', eqCatMc.size(), 'parents', np.unique( catParent.data['N']).shape[0], 'children', np.unique( catChild.data['N']).shape[0])
     #==================================4=============================================
     #                          spanning tree
     #================================================================================
     plt.figure( 1)
     ax = plt.subplot(111)  
-    for iEv in xrange( catParent.size()):
-        print 'MS', int( catParent.data['N'][iEv]), catParent.data['Time'][iEv], eqCatMc.data['Time'][iEv]
+    for iEv in range( catParent.size()):
+        print( 'MS', int( catParent.data['N'][iEv]), catParent.data['Time'][iEv], eqCatMc.data['Time'][iEv])
 
         if dNND['aNND'][iEv] < dPar['eta_0']:#triggered cluster
             ax.plot( [catParent.data['Time'][iEv]], [catParent.data['Lat'][iEv]], 'ro', ms = 12, alpha = .2)
@@ -95,7 +95,7 @@ for f_Mc in dPar['a_Mc']:
     #================================================================================
 
     plt.figure(1)
-    plt.savefig( '%s/%s_spanningTree_Mc_%.1f.png'%(plot_dir, file_in.split('.')[0], f_Mc))
+    #plt.savefig( '%s/%s_spanningTree_Mc_%.1f.png'%(plot_dir, file_in.split('.')[0], f_Mc))
     ## save main shock catalog
     plt.show()
     plt.clf()

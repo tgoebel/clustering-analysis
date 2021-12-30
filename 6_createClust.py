@@ -1,4 +1,4 @@
-# python2.7
+# python3.7
 '''    
         Created on Oct 7th, 2019
 
@@ -36,7 +36,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 import numpy as np
-import os
+import os, scipy.io
 
 #------------------------------my modules-------------------------------------- 
 import src.data_utils as dataIO
@@ -54,11 +54,10 @@ plot_dir   = 'plots'
 file_in    = 'hs_1981_2011_all.mat'
 
 
-dPar  = {   'a_Mc'        :  np.array([3.0, 4.0]), #np.array( [2.0, 2.5, 3.0, 3.5]),
+dPar  = {   'a_Mc'        :  np.array([4.0]), #3.0, 4.0]), #np.array( [2.0, 2.5, 3.0, 3.5]),
             #separate clustered and background
-            'eta_0'       : -5.0, # run 2_eta_0.py and
-                                  # if file exists: default = load this value from ASCII file
-            'testPlot'    : True,
+            # set to None or False to use value from file,requires results from: 2_eta_0.py
+            'eta_0'       : None, #-5.0,
             }
 
 #=================================2==============================================
@@ -75,12 +74,11 @@ for f_Mc in dPar['a_Mc']:
     clust_file = file_in.replace( 'all.mat', 'Mc_%.1f_clusters.mat'%( f_Mc))
     eta_0_file = '%s/%s_Mc_%.1f_eta_0.txt'%(data_dir, file_in, f_Mc)
     # load eta_0 value
-    if os.path.isfile( eta_0_file):
+    if dPar['eta_0'] == None or dPar['eta_0'] == False:
         print( 'load eta_0 from file'),
         f_eta_0 = np.loadtxt( eta_0_file, dtype = float)
-        print( f_eta_0)
     else:
-        print( 'could not find eta_0 file', eta_0_file, 'use value from dPar', dPar['eta_0'])
+        print( 'use eta_0 from dPar', dPar['eta_0'])
         f_eta_0 = dPar['eta_0']
 
     # cut below current completeness
@@ -97,8 +95,7 @@ for f_Mc in dPar['a_Mc']:
     #================================================================================
     print( 'similarity threshold', dPar['eta_0'])
     # clustering according to eta_0 similarity criteria
-    dClust = clustering.assembleClusters_NND( dNND['aEqID_c'], dNND['aEqID_p'], dNND['aNND'], f_eta_0, useLargerEvents = False)
-
+    dClust = clustering.compileClust( dNND['aEqID_c'], dNND['aEqID_p'], dNND['aNND'], f_eta_0, useLargerEvents = False)
     #=================================4==========================================================================
     #                           save results
     #============================================================================================================

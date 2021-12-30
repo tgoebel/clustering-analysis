@@ -1,4 +1,4 @@
-#!python2.7
+#!python3.7
 '''
 Created on March 28th,  2019
 
@@ -29,7 +29,6 @@ eqCat = EqCat( )
 dir_in = '%s/data/quakeData/SCSN/relocated'%( os.path.expanduser('~'))
 file_in= 'hs_1981_2011_all.txt'
 
-
 #=================================2==============================================
 #                            load data
 #================================================================================
@@ -44,8 +43,8 @@ print( sorted( eqCat.data.keys()))
 eqCat.saveMatBin( file_in.replace( 'txt', 'mat'))
 newEqCat = EqCat( )
 newEqCat.loadMatBin( file_in.replace( 'txt', 'mat'))
-print newEqCat.size()
-print sorted( newEqCat.data.keys())
+print( newEqCat.size())
+print( sorted( newEqCat.data.keys()))
 
 
 

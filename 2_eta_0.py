@@ -64,7 +64,7 @@ eqCat.selectEvents( dPar['aMc'][0], None, 'Mag')
 #eqCat.selectEvents( tmin, tmax, 'Time')
 print( 'no. of events after initial selection', eqCat.size())
 # project to equi-distant coordiante system for cartesian distances
-eqCat.toCart_coordinates( projection = 'aeqd')
+eqCat.toCart_coordinates( projection = 'eqdc')#'eqdc')
 for f_Mc in dPar['aMc']:
     print( '-------------- current Mc:', f_Mc, '---------------------')
     # select magnitude range
@@ -80,7 +80,7 @@ for f_Mc in dPar['aMc']:
     #                    randomize catalog
     #=================================================================================
     a_Eta_0 = np.zeros( dPar['nBoot'])
-    for i_Bs in xrange( dPar['nBoot']):
+    for i_Bs in range( dPar['nBoot']):
 
         ranCat.copy( eqCatMc)
         ranCat.data['X']     = np.random.uniform( eqCatMc.data['X'].min(), eqCatMc.data['X'].max(), size = eqCatMc.size())
@@ -157,10 +157,10 @@ for f_Mc in dPar['aMc']:
     #                            save results
     #================================================================================
     f_eta_0 = a_Eta_0.mean()
-    print 'medium eta_0', a_Eta_0.mean()
+    print( 'medium eta_0', a_Eta_0.mean()
     file_out = '%s/%s_Mc_%.1f_eta_0.txt'%(dir_in, file_in, f_Mc)
     np.savetxt( file_out, np.array([f_eta_0]), fmt = '%10.3f', header='eta_0')
-    print 'save results', file_out
+    print( 'save results', file_out
     scipy.io.savemat(file_out.replace('txt','mat'),
                      {'eta_0': f_eta_0, 'eta_BS' : a_Eta_0,}, do_compression=True)
 
