@@ -1,4 +1,4 @@
-#!python2.7
+#!python2.3
 '''
 Created on April 10th,  2019
 
@@ -19,7 +19,7 @@ TODO:
 '''
 #------------------------------------------------------------------------------
 import matplotlib as mpl
-mpl.use( 'Agg') # turn off interactive plot
+#mpl.use( 'Agg') # turn off interactive plot
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.io
@@ -38,7 +38,7 @@ dir_in = 'data'
 file_in= 'hs_1981_2011_all.mat'
 
 #file_b  = '%s_b_Mc_D.txt'%(fileIn.split('.')[0])
-dPar  = {   'aMc'         :  np.array([3.0, 4.0]), #np.array( [2.0, 2.5, 3.0, 3.5]),
+dPar  = {   'aMc'         :  np.array([4.0]), #3.0, 4.0]), #np.array( [2.0, 2.5, 3.0, 3.5]),
             # fractal dimension and b for eq. (1)
             'D'           : 1.6, # TODO: - these values should be contrained independently
             'b'           : 1.0, # use: https://github.com/tgoebel/magnitude-distribution for b-value
@@ -60,7 +60,7 @@ print( 'no. of events after initial selection', eqCat.size())
 #================================================================================
 # two ways to do the distance comp: 1 project into equal distance azimuthal , comp Cartersian distance in 3D
 #                                   2 get surface distance from lon, lat (haversine), use pythagoras to include depth
-eqCat.toCart_coordinates( projection = 'aeqd')
+eqCat.toCart_coordinates( projection = 'eqdc')
 
 for f_Mc in dPar['aMc']:
     print( '-------------- current Mc:', f_Mc, '---------------------')
@@ -76,11 +76,11 @@ for f_Mc in dPar['aMc']:
     #================================================================================  
     dCluster = clustering.NND_eta( eqCat, dConst,    correct_co_located = True, verbose= True)
     ###histogram
-    aBins       = np.arange( -13, 1, dPar['eta_binsize'])
+    aBins       = np.arange( -13, 1, dPar['eta_binsize'], dtype = float)
     aHist, aBins = np.histogram( np.log10( dCluster['aNND'][dCluster['aNND']>0]), aBins)
-    aHist, aBins = np.array(zip(*zip(aHist, aBins)))# cut to same length
+    aBins = aBins[0:-1] + dPar['eta_binsize']*.5
     # correct for binsize
-    aHist /= dPar['eta_binsize']
+    aHist = aHist/dPar['eta_binsize']
     # to pdf (prob. density)
     aHist /= eqCat.size()
     #=================================3==============================================
@@ -99,10 +99,11 @@ for f_Mc in dPar['aMc']:
     if os.path.isfile( eta_0_file):
         print( 'load eta_0 from file'),
         f_eta_0 = np.loadtxt( eta_0_file, dtype = float)
-        print( f_eta_0)
+        print( 'eta_0',f_eta_0)
     else:
-        print( 'could not find eta_0 file', eta_0_file, 'use value from dPar', dPar['eta_0'])
         f_eta_0 = -5
+        print( 'could not find eta_0 file', eta_0_file, 'use value: ', f_eta_0)
+
     fig, ax = plt.subplots()
     #ax.plot( vBin, vHist, 'ko')
     ax.bar( aBins, aHist, width =.8*dPar['eta_binsize'], align = 'edge', color = '.5', label = 'Mc = %.1f'%( f_Mc))

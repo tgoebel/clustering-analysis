@@ -68,7 +68,7 @@ for f_Mc in dPar['a_Mc']:
     #=================================1==========================================================================
     #                     singles are counted as MS with 0 AS
     #============================================================================================================
-    print 'total number of clusters', len(  dClust.keys()), 'no. of BG events', dClust['0'].shape[0]
+    print( 'total number of clusters', len(  dClust.keys()), 'no. of BG events', dClust['0'].shape[0])
     a_ID_single  = dClust['0']
 
     # IDs of BG events
@@ -76,17 +76,17 @@ for f_Mc in dPar['a_Mc']:
     a_mag_single = np.zeros( len( a_ID_single))
     a_N_AS_single= np.zeros( len( a_ID_single))
     a_N_FS_single= np.zeros( len( a_ID_single))
-    for i in xrange( a_ID_single.shape[0]):
+    for i in range( a_ID_single.shape[0]):
         # event ID may be in catalog more than once
         sel_ev          = eqCatMc.data['N'] == a_ID_single[i]
         a_mag_single[i] = eqCatMc.data['Mag'][sel_ev][0]
         a_iSel[sel_ev] = 1#catalog.data['N'][catalog.data['N']==aEqID[i]][0]
         if sel_ev.sum() != 1:
             error_str = 'more than event found', eqCatMc.data['N'][sel_ev]
-            raise ValueError, error_str
+            raise( ValueError( error_str))
     ### remove singles from catalog
     eqCatMc.selDicAll( np.logical_not(a_iSel))
-    print 'remaining events', eqCatMc.size(), 'BG events', len( a_mag_single)
+    print( 'remaining events', eqCatMc.size(), 'BG events', len( a_mag_single))
     dClust.pop('0') # remove singles
     #=================================2==========================================================================
     #                   get MAGs of MS with aftershocks, count aftershocks
@@ -98,17 +98,17 @@ for f_Mc in dPar['a_Mc']:
     iCl = 0
     for sCl in dClust.keys():
         aEqID = dClust[sCl]# np.unique( dClust[sCl].flatten()) unique is not needed anymore, createCluster has been fixed
-        print 'cl: ', iCl+1,'out of: ', len( dClust.keys()), 'no. of ev. in cl.', len( aEqID), len( np.unique( dClust[sCl]))
+        print( 'cl: ', iCl+1,'out of: ', len( dClust.keys()), 'no. of ev. in cl.', len( aEqID), len( np.unique( dClust[sCl])))
         # find MS mag and magnitude of entire family
         atmp_MAG = np.zeros( len( aEqID))
         atmp_Time= np.zeros( len( aEqID))
         a_iSel   = np.zeros( eqCatMc.size(), dtype = int)
         # for each family find: event mag. and origin time
-        for iM in xrange( len( aEqID)):
+        for iM in range( len( aEqID)):
             sel_ev        = eqCatMc.data['N'] == aEqID[iM]
             if sel_ev.sum() != 1:
                 error_str = 'more/less than event found', eqCatMc.data['N'][sel_ev], aEqID[iM]
-                raise ValueError, error_str
+                raise(  ValueError, error_str)
             atmp_MAG[iM]  = eqCatMc.data['Mag'][sel_ev][0]
             atmp_Time[iM] = eqCatMc.data['Time'][sel_ev][0]
             a_iSel[sel_ev] = 1
@@ -119,11 +119,11 @@ for f_Mc in dPar['a_Mc']:
         f_tMS     = atmp_Time[selMS][0]
         i_ID_MS   = aEqID[selMS]
 
-        #print 'tMS', tMS, v_currEqID.shape[0], 'MAG', curr_cat.data['MAG'][selMS][0]
+        #print( 'tMS', tMS, v_currEqID.shape[0], 'MAG', curr_cat.data['MAG'][selMS][0]
         #----------------------------aftershock-------------------------------------------------- 
         selAS     = atmp_Time > f_tMS
         selFS     = atmp_Time < f_tMS
-        #print 'no. of aftershocks', selAS.sum()
+        #print( 'no. of aftershocks', selAS.sum()
         # save number of aftershocks for each MS mag
         a_MS_mag[iCl] = atmp_MAG[selMS][0]#, dPar['magRound'])
         a_N_AS[iCl]   = selAS.sum()
@@ -139,8 +139,8 @@ for f_Mc in dPar['a_Mc']:
     a_N_AS    = np.append( a_N_AS, a_N_AS_single)
     a_MS_mag  = np.append( a_MS_mag, a_mag_single)
     a_MS_ID   = np.append( a_MS_ID, a_ID_single)
-    print 'tot ev. in catalog', n_aboveMc,'tot events in families',a_N_FS.sum() + a_N_AS.sum() + a_MS_mag.shape[0]
-    #print 'N BG', a_mag_single.shape[0], 'FS', a_N_FS_single.sum(), 'AS', a_N_AS_single.sum(), 'MS (MS+BG)', a_MS_mag.shape[0]
+    print( 'tot ev. in catalog', n_aboveMc,'tot events in families',a_N_FS.sum() + a_N_AS.sum() + a_MS_mag.shape[0])
+    #print( 'N BG', a_mag_single.shape[0], 'FS', a_N_FS_single.sum(), 'AS', a_N_AS_single.sum(), 'MS (MS+BG)', a_MS_mag.shape[0]
 
     #=================================4==========================================================================
     #                    save to ASCII text

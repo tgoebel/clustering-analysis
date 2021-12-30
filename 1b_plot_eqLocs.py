@@ -1,4 +1,4 @@
-#!python2.7
+#!python3.7
 '''
 Created on March 28th,  2019
 
@@ -14,14 +14,16 @@ TODO: - implement geo-referenced plotting with Basemap
 import matplotlib.pyplot as plt
 import numpy as np
 import os
+
+os.environ["PROJ_LIB"] = f"{os.environ['HOME']}/opt/anaconda3/share/proj"
 from mpl_toolkits.basemap import Basemap
 #------------------------------my modules-------------------------------------- 
 
-from src.EqCat import *
+from src.EqCat import EqCat
 
 eqCat = EqCat( )
 
-#print dir( dataUtils)
+#print( dir( dataUtils)
 #=================================1==============================================
 #                            dir, file, params
 #================================================================================
@@ -38,10 +40,10 @@ tmin, tmax = 1990, 2012
 #================================================================================
 os.chdir( dir_in)
 eqCat.loadMatBin(  file_in)
-print 'total no. of events', eqCat.size()
+print(  'total no. of events', eqCat.size())
 eqCat.selectEvents( Mmin, Mmax, 'Mag')
 eqCat.selectEvents( tmin, tmax, 'Time')
-print 'no. of events after initial selection', eqCat.size()
+print( 'no. of events after initial selection', eqCat.size())
 #=================================3==============================================
 #                          test plot T
 #================================================================================
