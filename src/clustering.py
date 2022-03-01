@@ -80,7 +80,7 @@ def NND_eta( eqCat, dConst, verbose = False, **kwargs):
         if sel_tau_par.sum() > 0:
 
             vcurr_ID = np.arange( eqCat.size(), dtype = int)[sel_tau_par]
-            if '3D_distance' in kwargs.keys() and kwargs['3d_distance'] == True:
+            if 'distance_3D' in kwargs.keys() and kwargs['distance_3D'] == True:
                 vR = np.sqrt(
                     (eqCat.data['X'][jC] - eqCat.data['X'][vcurr_ID]) ** 2 + (eqCat.data['Y'][jC] - eqCat.data['Y'][vcurr_ID]) ** 2 +
                     (eqCat.data['Z'][jC] - eqCat.data['Z'][vcurr_ID]) ** 2)
@@ -134,7 +134,7 @@ def rescaled_t_r(catChild, catPar, dConst, **kwargs):
     ----------
     catChild, catPar - objects of type SeisCatDic containing parent and child events
     dConst      =  'b', 'D' -  b-value, fractal dimension
-    kwargs       = 3D_distance = True default : False i.e. 2D Euclidean distance
+    kwargs       = distance_3D = True default : False i.e. 2D Euclidean distance
 
     Returns
     -------
@@ -156,7 +156,7 @@ def rescaled_t_r(catChild, catPar, dConst, **kwargs):
     #------------------------------------------------------------------------------         
     #vMagCorr = 10**(-0.5*dConst['b']*(catPar.data['MAG']-M0) )
     vMagCorr = 10**(-0.5*dConst['b']*(catPar.data['Mag']-M0) )
-    if '3D_distance' in kwargs.keys() and kwargs['3d_distance'] == True:
+    if 'distance_3D' in kwargs.keys() and kwargs['distance_3D'] == True:
         a_R       = np.sqrt( (catChild.data['X']-catPar.data['X'])**2 + (catChild.data['Y']-catPar.data['Y'])**2+ (catChild.data['Z']-catPar.data['Z'])**2 )**dConst['D']*vMagCorr
     else:
         a_R       = np.sqrt( (catChild.data['X']-catPar.data['X'])**2 + (catChild.data['Y']-catPar.data['Y'])**2 )**dConst['D']*vMagCorr
