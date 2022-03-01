@@ -80,7 +80,12 @@ def NND_eta( eqCat, dConst, verbose = False, **kwargs):
         if sel_tau_par.sum() > 0:
 
             vcurr_ID = np.arange( eqCat.size(), dtype = int)[sel_tau_par]
-            vR = np.sqrt( (eqCat.data['X'][jC] - eqCat.data['X'][vcurr_ID])**2 + (eqCat.data['Y'][jC] - eqCat.data['Y'][vcurr_ID])**2 )
+            if '3D_distance' in kwargs.keys() and kwargs['3d_distance'] == True:
+                vR = np.sqrt(
+                    (eqCat.data['X'][jC] - eqCat.data['X'][vcurr_ID]) ** 2 + (eqCat.data['Y'][jC] - eqCat.data['Y'][vcurr_ID]) ** 2 +
+                    (eqCat.data['Z'][jC] - eqCat.data['Z'][vcurr_ID]) ** 2)
+            else:
+                vR = np.sqrt( (eqCat.data['X'][jC] - eqCat.data['X'][vcurr_ID])**2 + (eqCat.data['Y'][jC] - eqCat.data['Y'][vcurr_ID])**2 )
             #  haversine distance
             # = projUtils.haversine( eqCat.data['Lon'][jC], eqCat.data['Lat'][jC],eqCat.data['Lon'][curr_vID], eqCat.data['Lat'][curr_vID] ) 
             sel_r_par = vR < rmax

@@ -14,7 +14,8 @@ import scipy.io #to writer and read mat bin
 os.environ["PROJ_LIB"] = f"{os.environ['HOME']}/opt/anaconda3/share/proj"# adjust, comment out as needed
 from mpl_toolkits.basemap import Basemap
 #-----------------my modules-----------------------------------------
-import datetime_utils as dateTime
+#import ClusteringAnalysis.src.datetime_utils as dateTime
+import src.datetime_utils as dateTime
 
 #--------------------------------------------------------------------
 class EqCat:
@@ -335,8 +336,6 @@ class EqCat:
         self.data['X'], self.data['Y'] = m( self.data['Lon'], self.data['Lat'])
         if projection == 'cyl':
             pass
-            #self.data['X'] *= 1e2
-            #self.data['Y'] *= 1e2
         else:
             self.data['X'] *= 1e-3
             self.data['Y'] *= 1e-3
