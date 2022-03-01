@@ -27,7 +27,7 @@ import os
  
 #------------------------------my modules-------------------------------------- 
 import src.clustering as clustering
-from src.EqCat import *
+from src.EqCat import EqCat
 
 eqCat = EqCat( )
 
@@ -73,8 +73,11 @@ for f_Mc in dPar['aMc']:
                'D' : dPar['D']}
     #==================================2=============================================
     #                       compute space-time-magnitude distance, histogram
-    #================================================================================  
-    dCluster = clustering.NND_eta( eqCat, dConst,    correct_co_located = True, verbose= True)
+    #================================================================================
+    eqCat.data['Z'] = eqCat.data['Depth']
+    print('depth range: ', eqCat.data['Z'].min(), eqCat.data['Z'].max())
+    dCluster = clustering.NND_eta( eqCat, dConst,    distance_3D = False,
+                                                    correct_co_located = True, verbose= True)
     ###histogram
     aBins       = np.arange( -13, 1, dPar['eta_binsize'], dtype = float)
     aHist, aBins = np.histogram( np.log10( dCluster['aNND'][dCluster['aNND']>0]), aBins)
@@ -119,7 +122,7 @@ for f_Mc in dPar['aMc']:
 
     plotFile = 'plots/%s_NND_hist_Mc_%.1f.png'%( file_in.split('.')[0], f_Mc)
     print( 'save plot', plotFile)
-    plt.savefig( plotFile)
+    #plt.savefig( plotFile)
     plt.clf()
     
 
