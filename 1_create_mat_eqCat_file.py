@@ -26,14 +26,14 @@ eqCat = EqCat( )
 #================================================================================
 # change to local dir where eq. catalogs are saved
 # the original catalog can be found here: https://scedc.caltech.edu/research-tools/altcatalogs.html
-dir_in = '%s/data/quakeData/SCSN/relocated'%( os.path.expanduser('~'))
-file_in= 'hs_1981_2011_all.txt'
+dir_in = '%s/notebooks/clustering-analysis/data'%( os.path.expanduser('~'))
+file_in= '20020416-20220116.txt'
 
 #=================================2==============================================
 #                            load data
 #================================================================================
 os.chdir( dir_in)
-eqCat.loadEqCat(  file_in, 'HS_reloc', removeColumn=[24,25,26])
+eqCat.loadEqCat(  file_in, 'USGS')
 
 print( 'total no. of events: ', eqCat.size())
 print( sorted( eqCat.data.keys()))

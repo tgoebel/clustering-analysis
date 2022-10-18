@@ -14,7 +14,6 @@ import scipy.io #to writer and read mat bin
 os.environ["PROJ_LIB"] = f"{os.environ['HOME']}/opt/anaconda3/share/proj"# adjust, comment out as needed
 from mpl_toolkits.basemap import Basemap
 #-----------------my modules-----------------------------------------
-#import ClusteringAnalysis.src.datetime_utils as dateTime
 import src.datetime_utils as dateTime
 
 #--------------------------------------------------------------------
@@ -116,6 +115,7 @@ class EqCat:
             #mID = np.loadtxt( file_in, delimiter=',', skiprows=1, usecols=(10,11), dtype = str).T
             #self.data['ID'] = np.array([ int(mID[1,i].strip( mID[0,i])) for i in range( mID.shape[1])], dtype = int)
             self.data['ID']  = np.arange( len( self.data['YR']))
+            self.data['N'] = self.data['ID']
             ###3### location, magnitude, gap etc.
             header = ['Lat', 'Lon', 'Depth', 'Mag']#, 'Nst', 'Gap', 'Dmin', 'rms']
             mData = np.loadtxt( file_in, delimiter=',', skiprows=1,
@@ -123,7 +123,7 @@ class EqCat:
                                 dtype = float).T
             for i in range( len(header)):
                 self.data[header[i]] = mData[i]
-
+            
         elif catalogType == 'Kilauea':
             mData = np.loadtxt( file_in).T
             # :TODO convert np.array to python dictionary

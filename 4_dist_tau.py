@@ -27,8 +27,8 @@ np.random.seed( 123456)
 #=================================1==============================================
 #                            dir, file, params
 #================================================================================
-data_dir = 'data'
-file_in  = 'hs_1981_2011_all.mat'
+data_dir = '%s/notebooks/clustering-analysis/data'%( os.path.expanduser('~'))
+file_in= '20020416-20220116.mat'
 
 #file_b  = '%s_b_Mc_D.txt'%(fileIn.split('.')[0])
 dPar  = {   'a_Mc'        :  np.array([4.0]), #np.array( [2.0, 2.5, 3.0, 3.5]),

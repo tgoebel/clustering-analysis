@@ -26,9 +26,9 @@ catParent= EqCat()
 #=================================1==============================================
 #                            dir, file, params
 #================================================================================
-data_dir = 'data'
-plot_dir = 'plots'
-file_in  = 'hs_1981_2011_all.mat'
+data_dir = '%s/notebooks/clustering-analysis/data'%( os.path.expanduser('~'))
+plot_dir = '%s/notebooks/clustering-analysis/plots'%( os.path.expanduser('~'))
+file_in = '20020416-20220116.mat'
 
 dPar  = {   'a_Mc'        :  np.array([4.0]), #np.array( [2.0, 2.5, 3.0, 3.5]),
             #separate clustered and background

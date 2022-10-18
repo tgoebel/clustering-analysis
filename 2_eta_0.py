@@ -30,8 +30,8 @@ np.random.seed( 123456)
 #=================================1==============================================
 #                            dir, file, params
 #================================================================================
-dir_in = 'data'
-file_in= 'hs_1981_2011_all.mat'
+dir_in = '%s/notebooks/clustering-analysis/data'%( os.path.expanduser('~'))
+file_in= '20020416-20220116.mat'
 
 #file_b  = '%s_b_Mc_D.txt'%(fileIn.split('.')[0])
 dPar  = {   'aMc'         :  np.array([3.0, 4.0]), #np.array( [2.0, 2.5, 3.0, 3.5]),
@@ -157,10 +157,10 @@ for f_Mc in dPar['aMc']:
     #                            save results
     #================================================================================
     f_eta_0 = a_Eta_0.mean()
-    print( 'medium eta_0', a_Eta_0.mean()
+    print( 'medium eta_0', a_Eta_0.mean())
     file_out = '%s/%s_Mc_%.1f_eta_0.txt'%(dir_in, file_in, f_Mc)
     np.savetxt( file_out, np.array([f_eta_0]), fmt = '%10.3f', header='eta_0')
-    print( 'save results', file_out
+    print( 'save results', file_out)
     scipy.io.savemat(file_out.replace('txt','mat'),
                      {'eta_0': f_eta_0, 'eta_BS' : a_Eta_0,}, do_compression=True)
 

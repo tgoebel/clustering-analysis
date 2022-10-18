@@ -34,13 +34,13 @@ eqCat = EqCat( )
 #=================================1==============================================
 #                            dir, file, params
 #================================================================================
-dir_in = 'data'
-file_in= 'hs_1981_2011_all.mat'
+dir_in = '%s/notebooks/clustering-analysis/data'%( os.path.expanduser('~'))
+file_in= '20020416-20220116.mat'
 
 #file_b  = '%s_b_Mc_D.txt'%(fileIn.split('.')[0])
 dPar  = {   'aMc'         :  np.array([4.0]), #3.0, 4.0]), #np.array( [2.0, 2.5, 3.0, 3.5]),
             # fractal dimension and b for eq. (1)
-            'D'           : 1.6, # TODO: - these values should be contrained independently
+            'D'           : 1.6, # TODO: - these values should be constrained independently
             'b'           : 1.0, # use: https://github.com/tgoebel/magnitude-distribution for b-value
             #=================plotting==============
             'eta_binsize' :  .3,
@@ -92,6 +92,7 @@ for f_Mc in dPar['aMc']:
     import scipy.io
     NND_file = 'data/%s_NND_Mc_%.1f.mat'%( file_in.split('.')[0], f_Mc)
     print( 'save file', NND_file)
+    print(dCluster.keys())
     scipy.io.savemat( NND_file, dCluster, do_compression  = True)
     
     #=================================4==============================================
@@ -122,7 +123,7 @@ for f_Mc in dPar['aMc']:
 
     plotFile = 'plots/%s_NND_hist_Mc_%.1f.png'%( file_in.split('.')[0], f_Mc)
     print( 'save plot', plotFile)
-    #plt.savefig( plotFile)
+    plt.savefig( plotFile)
     plt.clf()
     
 
