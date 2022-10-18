@@ -154,5 +154,3 @@ def selDicAll(dic, curr_sel, **kwargs):
         newDic[tag] = dic[tag][curr_sel]
     return newDic
 
-
-

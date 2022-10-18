@@ -49,9 +49,9 @@ eqCatMc = EqCat() # this catalog will be modified with each Mc iteration
 #=================================1==============================================
 #                            dir, file, params
 #================================================================================
-data_dir   = 'data'
-plot_dir   = 'plots'
-file_in    = 'hs_1981_2011_all.mat'
+data_dir = '%s/notebooks/clustering-analysis/data'%( os.path.expanduser('~'))
+plot_dir = '%s/notebooks/clustering-analysis/plots'%( os.path.expanduser('~'))
+file_in = '20020416-20220116.mat'
 
 
 dPar  = {   'a_Mc'        :  np.array([4.0]), #3.0, 4.0]), #np.array( [2.0, 2.5, 3.0, 3.5]),
@@ -95,7 +95,7 @@ for f_Mc in dPar['a_Mc']:
     #================================================================================
     print( 'similarity threshold', dPar['eta_0'])
     # clustering according to eta_0 similarity criteria
-    dClust = clustering.compileClust( dNND['aEqID_c'], dNND['aEqID_p'], dNND['aNND'], f_eta_0, useLargerEvents = False)
+    dClust = clustering.compileClust( dNND, f_eta_0, useLargerEvents = False)
     #=================================4==========================================================================
     #                           save results
     #============================================================================================================
