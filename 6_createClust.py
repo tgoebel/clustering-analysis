@@ -54,7 +54,7 @@ plot_dir   = 'plots'
 file_in    = 'hs_1981_2011_all.mat'
 
 
-dPar  = {   'a_Mc'        :  np.array([4.0]), #3.0, 4.0]), #np.array( [2.0, 2.5, 3.0, 3.5]),
+dPar  = {   'a_Mc'        :  np.array([3.0]), #3.0, 4.0]), #np.array( [2.0, 2.5, 3.0, 3.5]),
             #separate clustered and background
             # set to None or False to use value from file,requires results from: 2_eta_0.py
             'eta_0'       : None, #-5.0,
@@ -73,20 +73,21 @@ iMc = 0
 for f_Mc in dPar['a_Mc']:
     clust_file = file_in.replace( 'all.mat', 'Mc_%.1f_clusters.mat'%( f_Mc))
     eta_0_file = '%s/%s_Mc_%.1f_eta_0.txt'%(data_dir, file_in, f_Mc)
-    # load eta_0 value
-    if dPar['eta_0'] == None or dPar['eta_0'] == False:
+    if os.path.isfile( eta_0_file):
         print( 'load eta_0 from file'),
         f_eta_0 = np.loadtxt( eta_0_file, dtype = float)
+        print( 'eta_0',f_eta_0)
     else:
-        print( 'use eta_0 from dPar', dPar['eta_0'])
-        f_eta_0 = dPar['eta_0']
+        f_eta_0 = -5
+        print( 'could not find eta_0 file', eta_0_file, 'use value: ', f_eta_0)
+
 
     # cut below current completeness
     eqCatMc.copy( eqCat)
     eqCatMc.selectEvents( f_Mc, None, 'Mag')
     print( 'current catalog size: ',eqCatMc.size())
     # load nearest neighbor distances
-    NND_file = '%s_NND_Mc_%.1f.mat'%(os.path.basename( file_in).split('.')[0], f_Mc)
+    NND_file = '%s_NND_Mc_%.1f.mat' % (file_in.split('.')[0], f_Mc)
     dNND = dataIO.loadmat( os.path.join( data_dir, NND_file))
     dNND['aNND'] = np.log10( dNND['aNND'])
  
@@ -95,7 +96,7 @@ for f_Mc in dPar['a_Mc']:
     #================================================================================
     print( 'similarity threshold', dPar['eta_0'])
     # clustering according to eta_0 similarity criteria
-    dClust = clustering.compileClust( dNND['aEqID_c'], dNND['aEqID_p'], dNND['aNND'], f_eta_0, useLargerEvents = False)
+    dClust = clustering.compileClust( dNND, f_eta_0, useLargerEvents = False)
     #=================================4==========================================================================
     #                           save results
     #============================================================================================================

@@ -23,7 +23,7 @@ from src.EqCat import EqCat
 
 eqCat = EqCat( )
 
-#print( dir( dataUtils)
+#print( dir( dataUtils))
 #=================================1==============================================
 #                            dir, file, params
 #================================================================================
@@ -40,6 +40,8 @@ tmin, tmax = 1990, 2012
 #================================================================================
 os.chdir( dir_in)
 eqCat.loadMatBin(  file_in)
+print( eqCat.methods)
+print( grege)
 print(  'total no. of events', eqCat.size())
 eqCat.selectEvents( Mmin, Mmax, 'Mag')
 eqCat.selectEvents( tmin, tmax, 'Time')

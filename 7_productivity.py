@@ -58,7 +58,6 @@ for f_Mc in dPar['a_Mc']:
     clust_file = file_in.replace( 'all.mat', 'Mc_%.1f_clusters.mat'%( f_Mc))
     dClust = data_utils.loadmat( os.path.join( data_dir,clust_file), )
 
-
     # cut below current completeness
     eqCatMc.copy( eqCat)
     eqCatMc.selectEvents( f_Mc, None, 'Mag')

@@ -17,6 +17,7 @@ TODO:
 
 @author: tgoebel
 '''
+import time
 #------------------------------------------------------------------------------
 import matplotlib as mpl
 #mpl.use( 'Agg') # turn off interactive plot
@@ -38,7 +39,7 @@ dir_in = 'data'
 file_in= 'hs_1981_2011_all.mat'
 
 #file_b  = '%s_b_Mc_D.txt'%(fileIn.split('.')[0])
-dPar  = {   'aMc'         :  np.array([4.0]), #3.0, 4.0]), #np.array( [2.0, 2.5, 3.0, 3.5]),
+dPar  = {   'aMc'         :  np.array([3.0]), #3.0, 4.0]), #np.array( [2.0, 2.5, 3.0, 3.5]),
             # fractal dimension and b for eq. (1)
             'D'           : 1.6, # TODO: - these values should be contrained independently
             'b'           : 1.0, # use: https://github.com/tgoebel/magnitude-distribution for b-value
@@ -125,11 +126,6 @@ for f_Mc in dPar['aMc']:
     #plt.savefig( plotFile)
     plt.clf()
     
-
-
-
-
-
 
 
 
