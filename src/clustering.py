@@ -15,7 +15,7 @@ import warnings
 #===============================================================================
 #                          my modules
 #===============================================================================
-import ClusteringAnalysis.src.data_utils as data_utils
+import src.data_utils as data_utils
 
 #===============================================================================
 # 
@@ -30,7 +30,7 @@ def NND_eta( eqCat, dConst, verbose = False, **kwargs):
 
     Parameters
     ----------
-    catalog     - catalog.data['Time'], 'X', 'Y', 'Depth', 'MAG'
+    catalog     - catalog.data['Time'], 'Lon', 'Lat' (or 'X', 'Y',) 'Depth', 'MAG'
                 - time, cartesian coordinates (X,Y, Depth), magnitude
     dConst      - {'Mc':float, 'b':float, 'D':float} #  dictionary with statistical seismicity parameters
                    - completeness , b-value, fractal dimension
@@ -63,7 +63,7 @@ def NND_eta( eqCat, dConst, verbose = False, **kwargs):
     #-----------------------------add small uncertainty to X in case events are colocated-------------------------- 
     if 'correct_co_located' in kwargs.keys() and kwargs['correct_co_located'] == True:
         vUncer = np.random.randn( eqCat.size())*1e-10
-        eqCat.data['X']    += vUncer
+        eqCat.data['Lon']    += vUncer
     #------------------------------------------------------------------------------
     aNND     = np.zeros( eqCat.size())
     vID_p    = np.zeros( eqCat.size())
@@ -72,7 +72,7 @@ def NND_eta( eqCat, dConst, verbose = False, **kwargs):
  
     for jC in range( eqCat.size()):
         if verbose == True:
-            print( 'event %i of %i'%( jC+1, eqCat.size()))
+            print( f"event {jC+1:d} of {eqCat.size():d}", end= "\r")
         # interevent times: take events that happend before t_i 
         #           child             - parent                > 0 
         tau         =  eqCat.data['Time'][jC] - eqCat.data['Time']
@@ -80,14 +80,12 @@ def NND_eta( eqCat, dConst, verbose = False, **kwargs):
         if sel_tau_par.sum() > 0:
 
             vcurr_ID = np.arange( eqCat.size(), dtype = int)[sel_tau_par]
-            if 'distance_3D' in kwargs.keys() and kwargs['distance_3D'] == True:
-                vR = np.sqrt(
-                    (eqCat.data['X'][jC] - eqCat.data['X'][vcurr_ID]) ** 2 + (eqCat.data['Y'][jC] - eqCat.data['Y'][vcurr_ID]) ** 2 +
-                    (eqCat.data['Z'][jC] - eqCat.data['Z'][vcurr_ID]) ** 2)
-            else:
+            # if cartesian coordinates are available
+            if 'X' in eqCat.data.keys() and 'Y' in eqCat.data.keys():
                 vR = np.sqrt( (eqCat.data['X'][jC] - eqCat.data['X'][vcurr_ID])**2 + (eqCat.data['Y'][jC] - eqCat.data['Y'][vcurr_ID])**2 )
-            #  haversine distance
-            # = projUtils.haversine( eqCat.data['Lon'][jC], eqCat.data['Lat'][jC],eqCat.data['Lon'][curr_vID], eqCat.data['Lat'][curr_vID] ) 
+            else:
+                #  haversine distance
+                vR = haversine( eqCat.data['Lon'][jC], eqCat.data['Lat'][jC],eqCat.data['Lon'][vcurr_ID], eqCat.data['Lat'][vcurr_ID] )
             sel_r_par = vR < rmax
             if sel_r_par.sum() > 0:
                 vcurr_ID = vcurr_ID[sel_r_par]
@@ -102,7 +100,6 @@ def NND_eta( eqCat, dConst, verbose = False, **kwargs):
                 if sel_min.sum() > 1:
                     print( aNND[jC], curr_Eta[sel_min], eqCat.data['N'][vcurr_ID][sel_min])
                     print( eqCat.data['Lon'][vcurr_ID][sel_min], eqCat.data['Lat'][vcurr_ID][sel_min])
-                    print( eqCat.data['X'][vcurr_ID][sel_min], eqCat.data['Y'][vcurr_ID][sel_min])
     sel2 = aNND > 0
     if np.logical_not(sel2).sum() > 0:
         print( 'remove %i offspring without prior parents in catalog'%(np.logical_not(sel2).sum()))
@@ -144,7 +141,6 @@ def rescaled_t_r(catChild, catPar, dConst, **kwargs):
     see: Clustering Analysis of Seismicity and Aftershock Identification, Zaliapin, I. (2008)
 
     """
-
     #-------------------------------set args and kwargs-----------------------------------------------
     M0 = 0
     if 'M0' in kwargs.keys() and kwargs['M0'] is not None:
@@ -152,14 +148,19 @@ def rescaled_t_r(catChild, catPar, dConst, **kwargs):
     #-----------------------------add small uncertainty to X in case events are colocated-------------------------- 
     if 'correct_co_located' in kwargs.keys() and kwargs['correct_co_located'] == True:
         vUncer = np.random.randn( catChild.size())*1e-10
-        catChild.data['X']    += vUncer
+        catChild.data['Lon']    += vUncer
     #------------------------------------------------------------------------------         
     #vMagCorr = 10**(-0.5*dConst['b']*(catPar.data['MAG']-M0) )
     vMagCorr = 10**(-0.5*dConst['b']*(catPar.data['Mag']-M0) )
-    if 'distance_3D' in kwargs.keys() and kwargs['distance_3D'] == True:
-        a_R       = np.sqrt( (catChild.data['X']-catPar.data['X'])**2 + (catChild.data['Y']-catPar.data['Y'])**2+ (catChild.data['Z']-catPar.data['Z'])**2 )**dConst['D']*vMagCorr
+    # if cartesian coordinates are available
+    if 'X' in catChild.data.keys() and 'X' in catPar.data.keys():
+        a_R = np.sqrt((catChild.data['X'] - catPar.data['X']) ** 2 + (catChild.data['Y'] - catPar.data['Y']) ** 2) ** \
+              dConst['D'] * vMagCorr
+
     else:
-        a_R       = np.sqrt( (catChild.data['X']-catPar.data['X'])**2 + (catChild.data['Y']-catPar.data['Y'])**2 )**dConst['D']*vMagCorr
+        a_R = haversine(catChild.data['Lon'], catChild.data['Lat'],
+                   catPar.data['Lon'],   catPar.data['Lat'])**dConst['D']*vMagCorr
+
     a_dt = catChild.data['Time']-catPar.data['Time']#interevent times
     a_tau = (a_dt)*vMagCorr
     sel2 = a_tau < 0
@@ -168,7 +169,7 @@ def rescaled_t_r(catChild, catPar, dConst, **kwargs):
         #print( catPar.data['N'][sel2])
         error_str = '%i parents occurred after offspring, check order of origin time in catChild, catPar'%(sel2.sum())
         raise( ValueError( error_str))
-    return   a_R, a_tau
+    return a_R, a_tau
 
 
 def compileClust( dNND, simThreshold, verbose = True,  **kwargs):
@@ -709,6 +710,31 @@ def rand_rate_uni( N, tmin, tmax, **kwargs):
     return np.random.uniform( tmin, tmax, size = N)
 
 
+# ------------------------------------------------------------------------------------------
+def haversine(lon1, lat1, lon2, lat2, **kwargs):
+    """
+    haversine formula implementation
+    https://en.wikipedia.org/wiki/Great-circle_distance
+    great circle distance between two points
+    :input   lon1, lat1
+             lon2, lat2
+
+    		  gR - Earth radius (global variable)
+    :output  distance - great circle distance in kilometer
+    """
+    i_radius = 6371
+    # convert to radians
+    lon1 = lon1 * np.pi / 180
+    lon2 = lon2 * np.pi / 180
+    lat1 = lat1 * np.pi / 180
+    lat2 = lat2 * np.pi / 180
+    # haversine formula
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+    a = np.sin(dlat / 2) ** 2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon / 2) ** 2
+    c = 2 * np.arctan2(np.sqrt(a), np.sqrt(1 - a))
+    distance = i_radius * c
+    return distance
 
 # ==================================4==============================================================
 #                       T-R density plots

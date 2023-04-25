@@ -11,8 +11,6 @@ import os
 import numpy as np
 import scipy.io #to writer and read mat bin
 # the next line sets the path to PROJ LIB, should be found automatically for conda install
-os.environ["PROJ_LIB"] = f"{os.environ['HOME']}/opt/anaconda3/share/proj"# adjust, comment out as needed
-from mpl_toolkits.basemap import Basemap
 #-----------------my modules-----------------------------------------
 #import ClusteringAnalysis.src.datetime_utils as dateTime
 import src.datetime_utils as dateTime
@@ -39,6 +37,9 @@ class EqCat:
         """
         self.data           = {}
 
+        self.methods = [method_name for method_name in dir(self)
+             if callable(getattr(self, method_name)) and method_name[0] != '_']
+
         """ input use kwargs to go from cartesian to GPS coordinates,
         tags can be accessed: sLoc1 - sLoc3 , last one is depth or self.sLoc3 """
 #         if 'type' in kwargs.keys() and kwargs['type'] == 'GPS':
@@ -62,7 +63,6 @@ class EqCat:
     #===========================================================================
     #                         import routines
     #===========================================================================
-
     def loadEqCat(self, file_in, catalogType, verbose=False, **kwargs):
         """ check what type of catalog and call correct function that handles import
         input: - file         - catalog filename
@@ -85,7 +85,7 @@ class EqCat:
         else:
             header = None
         if 'removeColumn' in kwargs.keys() and kwargs['removeColumn'] is not None:
-            import data_utils
+            import src.data_utils as data_utils
             # remove columns and change file_name to copy of original file to keep the original
             file_in = data_utils.removeColumn( file_in, kwargs['removeColumn'])
         #-----------choose import routine------------------------------
@@ -94,9 +94,9 @@ class EqCat:
                 header = 1
             #TODO: get dic tag from file header
             headList = ['YR', 'MO', 'DY', 'HR', 'MN','SC', 'N', 'Lat','Lon','Depth', 'Mag', 'nPick', 'distSta', 'rms', 'd/n', 'rMeth', 'clID', 'nEvInCl',  'nlnk','err_h','err_z','rel_err_H', 'rel_err_Z']
-            self.data = {}           
-            mData = np.loadtxt( file_in, skiprows = header)
-            #mData = mData.T
+            self.data = {}
+            # 0-5 (datetime), 6(ID), 7 (lat), 8 (lon), 9 (depth), 10 (mag)
+            mData = np.loadtxt(f"{file_in}", usecols=(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
             print( 'no of columns', mData[0].shape[0])
             print( 'no. of earthquakes', mData[:,0].shape[0])
             for l in range( mData[0].shape[0] ):
@@ -306,8 +306,6 @@ class EqCat:
     #======================================4==========================================
     #                            projections, rotations etc.
     #=================================================================================
-
-
     def toCart_coordinates(self, **kwargs):
         """
         :input
@@ -320,6 +318,8 @@ class EqCat:
                 return True or basemap object, m
         
         """
+        os.environ["PROJ_LIB"] = f"{os.environ['HOME']}/opt/anaconda3/share/proj"# adjust, comment out as needed
+        from mpl_toolkits.basemap import Basemap
         projection = 'aeqd'
         if 'projection' in kwargs.keys() and kwargs['projection'] is not None:
             projection = kwargs['projection']
